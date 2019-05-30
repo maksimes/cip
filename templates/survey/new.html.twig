@@ -1,0 +1,86 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello SurveyController!{% endblock %}
+
+{% block body %}
+<style>
+    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
+    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
+</style>
+
+<div class="example-wrapper">
+
+
+    {{ form_start(form) }}
+
+        {{ form_row(form.title) }}
+        {{ form_row(form.status) }}
+
+        <ul class="questions" data-prototype="{{ form_widget(form.questions.vars.prototype)|e('html_attr') }}">
+                <lu>
+                        {{ form_row(form.questions.vars.prototype.text)|e }}
+                        {{ form_row(form.questions.vars.prototype.type)|e }}
+                        {{ form_row(form.questions.vars.prototype.required)|e }}
+                </lu>
+        </ul>
+    {{ form_end(form) }}
+
+        <script>
+                var $collectionHolder;
+
+                // установка ссылки "добавить тег"
+                var $addQuestionLink = $('<button> <a href="#" class="add_question_link">Дбавить вопрос</a></button>');
+                var $newLinkLi = $('<li></li>').append($addQuestionLink);
+
+                jQuery(document).ready(function() {
+                        // Получите ul, содержащий коллекцию тегов
+                        $collectionHolder = $('ul.questions');
+
+                        // добавьте привязку "добавить тег" и li к тегам ul
+                        $collectionHolder.append($newLinkLi);
+
+                        // почитайте текущие вводы формы, которые у вас есть (например, 2) и используйте
+                        // это в качестве нового индекса при вставке нового объекта (например, 2)
+                        $collectionHolder.data('index', $collectionHolder.find(':input').length);
+
+                        $addQuestionLink.on('click', function(e) {
+                                // предотвратите ссылку от создания "#" в URL
+                                e.preventDefault();
+
+                                // добавьте новую форму тега (смотрите следующий блок кода)
+                                addQuestionForm($collectionHolder, $newLinkLi);
+                        });
+                });
+
+                function addQuestionForm($collectionHolder, $newLinkLi) {
+                        // Получить прототип данных, объяснённый ранее
+                        var prototype = $collectionHolder.data('prototype');
+
+                        // получить новый индекс
+                        var index = $collectionHolder.data('index');
+
+                        var newForm = prototype;
+                        // Вам нужно это только в случае, если вы не установили 'label', как "false" в вашем поле тегов в TaskType
+                        // Заменить '__name__label__' в HTML прототипа, чтобы
+                        // он был числом, основанным на том, сколько объектов у нас есть
+                        // newForm = newForm.replace(/__name__label__/g, index);
+
+                        // Заменить '__name__' в HTML прототипа на
+                        // номер, основанный на количестве имеющихся объектов
+                        // newForm = newForm.replace(/__name__/g, index);
+
+                        // увеличить индекс на единицу для следующего объекта
+                        $collectionHolder.data('index', index + 1);
+
+                        // Отобразить форму на странице в li, до ссылки Li "добавить тег"
+                        var $newFormLi = $('<li></li>').append(newForm);
+                        $newLinkLi.before($newFormLi);
+                }
+        </script>
+</div>
+
+
+
+
+
+{% endblock %}
