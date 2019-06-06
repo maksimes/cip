@@ -12,16 +12,17 @@
 
 
     {{ form_start(form) }}
-
+        {{ form_errors(form) }}
         {{ form_row(form.title) }}
         {{ form_row(form.status) }}
 
+
         <ul class="questions" data-prototype="{{ form_widget(form.questions.vars.prototype)|e('html_attr') }}">
-                <lu>
-                        {{ form_row(form.questions.vars.prototype.text)|e }}
-                        {{ form_row(form.questions.vars.prototype.type)|e }}
-                        {{ form_row(form.questions.vars.prototype.required)|e }}
-                </lu>
+
+                {{ form_row(form.questions.vars.prototype.text)}}
+                {{ form_row(form.questions.vars.prototype.type)}}
+                {{ form_row(form.questions.vars.prototype.required)}}
+
         </ul>
     {{ form_end(form) }}
 
@@ -29,12 +30,17 @@
                 var $collectionHolder;
 
                 // установка ссылки "добавить тег"
-                var $addQuestionLink = $('<button> <a href="#" class="add_question_link">Дбавить вопрос</a></button>');
-                var $newLinkLi = $('<li></li>').append($addQuestionLink);
+                var $addQuestionLink = $(' <a href="#" class="add_question_link"><button>Добавить вопрос</button></a>');
+                var $newLinkLi = $('<ul></ul>').append($addQuestionLink);
 
                 jQuery(document).ready(function() {
                         // Получите ul, содержащий коллекцию тегов
                         $collectionHolder = $('ul.questions');
+
+                        // добавить ссылку удаления ко всем существующим элементам li в форме тегов
+                        $collectionHolder.find('li').each(function() {
+                                addQuestionFormDeleteLink($(this));
+                        });
 
                         // добавьте привязку "добавить тег" и li к тегам ul
                         $collectionHolder.append($newLinkLi);
@@ -64,7 +70,7 @@
                         // Заменить '__name__label__' в HTML прототипа, чтобы
                         // он был числом, основанным на том, сколько объектов у нас есть
                         // newForm = newForm.replace(/__name__label__/g, index);
-
+                        newForm = newForm.replace(/__name__/g, index);
                         // Заменить '__name__' в HTML прототипа на
                         // номер, основанный на количестве имеющихся объектов
                         // newForm = newForm.replace(/__name__/g, index);
@@ -75,7 +81,22 @@
                         // Отобразить форму на странице в li, до ссылки Li "добавить тег"
                         var $newFormLi = $('<li></li>').append(newForm);
                         $newLinkLi.before($newFormLi);
+                        addQuestionFormDeleteLink($newFormLi);
                 }
+
+                function addQuestionFormDeleteLink($QuestionFormLi) {
+                        var $removeFormA = $(' <a href="#"><button>Удалить вопрос</button></a>');
+                        $QuestionFormLi.append($removeFormA);
+
+                        $removeFormA.on('click', function(e) {
+                                // предотвратить ссылку от создания "#" в URL
+                                e.preventDefault();
+
+                                // удалить li в форме тегов
+                                $QuestionFormLi.remove();
+                        });
+                }
+
         </script>
 </div>
 

@@ -18,22 +18,22 @@ class QuestionController extends AbstractController
      */
     public function new(Request $request)
     {
-        $question = new Question();
-
-
-        $form = $this->createForm(QuestionType::class, $question);
-
-        $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
-            $question = $form->getData();
-            $survey = $question->GetSurvey();
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($question);
-            $em->persist($survey);
-            $em->flush();
-
-            return $this->redirectToRoute('success');
-        }
+//        $question = new Question();
+//
+//
+//        $form = $this->createForm(QuestionType::class, $question);
+//
+//        $form->handleRequest($request);
+//        if ($form->isSubmitted() && $form->isValid()) {
+//            $question = $form->getData();
+//            $survey = $question->GetSurvey();
+//            $em = $this->getDoctrine()->getManager();
+//            $em->persist($question);
+//            $em->persist($survey);
+//            $em->flush();
+//
+//            return $this->redirectToRoute('success');
+//        }
 
 
         return $this->render('question/index.html.twig', array(

@@ -26,16 +26,6 @@ class SurveyController extends AbstractController
     public function new(Request $request)
     {
         $survey = new Survey();
-//        $survey->setTitle('Number one');
-
-        $question1 = new Question();
-        $question1->setText('qu1');
-        $survey->getQuestions()->add($question1);
-        $question2 = new Question();
-        $question2->setText('qu2');
-        $survey->getQuestions()->add($question2);
-        $question1->setSurvey($survey);
-        $question2->setSurvey($survey);
 
 
         $form = $this->createForm(SurveyType::class, $survey);
@@ -45,24 +35,22 @@ class SurveyController extends AbstractController
             $survey = $form->getData();
 
             $questions = $survey->getQuestions();
-            foreach ($questions as $question) {
-                $required = $question->getRequired(true);
-            }
-            if ($required == null) {
-                return $this->redirectToRoute('survey');
-            }
-
-            if($survey->getStatus() == 'active') {
-                $repository = $this->getDoctrine()->getRepository(Survey::class);
-                $again_active = $repository->findOneBy(['status' => 'active']);
-                if(isset($again_active)) {
-                    return $this->redirectToRoute('survey');
-                }
-            }
+//            foreach ($questions as $question) {
+//                $required = $question->getRequired(true);
+//            }
+//            if (isset($required) && $required == null) {
+//                return $this->redirectToRoute('survey');
+//            }
+//
+//            if($survey->getStatus() == 'active') {
+//                $repository = $this->getDoctrine()->getRepository(Survey::class);
+//                $again_active = $repository->findOneBy(['status' => 'active']);
+//                if(isset($again_active)) {
+//                    return $this->redirectToRoute('survey');
+//                }
+//            }
 
             $em = $this->getDoctrine()->getManager();
-            $em->persist($question1);
-            $em->persist($question2);
             $em->persist($survey);
             $em->flush();
 

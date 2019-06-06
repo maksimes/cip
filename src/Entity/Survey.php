@@ -41,7 +41,11 @@ class Survey
     private $users;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Question", mappedBy="survey", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\Question", mappedBy="survey", orphanRemoval=true, cascade={"persist"})
+     * @Assert\Count(
+     *      min = 1,
+     *      minMessage = "Должен быть создан хотябы {{ limit }} вопрос",
+     * )
      */
     private $questions;
 
