@@ -26,11 +26,14 @@ class SurveyType extends AbstractType
             ->add('save', SubmitType::class, array('label' => 'Создать опрос'))
         ;
         $builder->add('questions', CollectionType::class, array(
+            'label' => false,
             'entry_type' => QuestionType::class,
             'entry_options' => array('label' => false),
             'allow_add' => true,
             'by_reference' => false,
             'allow_delete' => true,
+            'prototype' => true,
+            'prototype_name' => '__question_prot__'
         ));
     }
 

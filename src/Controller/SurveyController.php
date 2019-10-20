@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Answer;
 use App\Entity\Question;
 use App\Entity\Survey;
 use App\Form\SurveyType;
@@ -26,6 +27,12 @@ class SurveyController extends AbstractController
     public function new(Request $request)
     {
         $survey = new Survey();
+        $question1 = new Question();
+        $answer1 = new Answer();
+        $answer2 = new Answer();
+        $question1->addAnswer($answer1);
+        $question1->addAnswer($answer2);
+        $survey->addQuestion($question1);
 
 
         $form = $this->createForm(SurveyType::class, $survey);
@@ -34,7 +41,12 @@ class SurveyController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $survey = $form->getData();
 
+            dump($request);
+            dump($survey);
+
             $questions = $survey->getQuestions();
+//            $answers = $questions->getAnswers();
+
 //            foreach ($questions as $question) {
 //                $required = $question->getRequired(true);
 //            }

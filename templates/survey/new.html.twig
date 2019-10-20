@@ -3,43 +3,60 @@
 {% block title %}Hello SurveyController!{% endblock %}
 
 {% block body %}
+
 <style>
     .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
     .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
 </style>
 
+
 <div class="example-wrapper">
 
 
     {{ form_start(form) }}
-        {{ form_errors(form) }}
         {{ form_row(form.title) }}
         {{ form_row(form.status) }}
+        {{ form_errors(form) }}
 
-
-        <ul class="questions" data-prototype="{{ form_widget(form.questions.vars.prototype)|e('html_attr') }}">
-
-                {{ form_row(form.questions.vars.prototype.text)}}
-                {{ form_row(form.questions.vars.prototype.type)}}
-                {{ form_row(form.questions.vars.prototype.required)}}
-
+        {#<ul class="questions answers" data-prototype_answer="{{ form_widget(form.questions.vars.prototype.answers.vars.prototype)|e() }}"#}
+            {#data-prototype_question="{{ form_widget(form.questions.vars.prototype)|e() }}"></ul>#}
+        <ul class="questions"
+            data-prototype-answer="{{ form_widget(form.questions.vars.prototype.children['answers'].vars.prototype)|e }}"
+            data-prototype-question="{{ form_widget(form.questions.vars.prototype)|e }}">
+            {% for question in form.questions %}
+                <li  class="question" style="margin-top: 20px">
+                        {{ form_row(question.text) }}
+                        {{ form_row(question.type) }}
+                        {{ form_row(question.required) }}
+                        <ul class="answers" data-prototype="{{ form_widget(question.answers.vars.prototype)|e }}">
+                                {% for answer in question.answers %}
+                                        <li class="answer">{{ form_row(answer.text) }}</li>
+                                {% endfor %}
+                        </ul>
+                </li>
+            {% endfor %}
         </ul>
+
     {{ form_end(form) }}
 
         <script>
                 var $collectionHolder;
 
                 // установка ссылки "добавить тег"
-                var $addQuestionLink = $(' <a href="#" class="add_question_link"><button>Добавить вопрос</button></a>');
-                var $newLinkLi = $('<ul></ul>').append($addQuestionLink);
+                var $addQuestionLink = $(' <a style="margin-top: 20px;" ef="#" class="add_question_link"><button>Добавить вопрос</button></a>');
+                var $newLinkLi = $('<li></li>').append($addQuestionLink);
 
                 jQuery(document).ready(function() {
                         // Получите ul, содержащий коллекцию тегов
                         $collectionHolder = $('ul.questions');
 
                         // добавить ссылку удаления ко всем существующим элементам li в форме тегов
-                        $collectionHolder.find('li').each(function() {
-                                addQuestionFormDeleteLink($(this));
+                        $collectionHolder.find('.question').each(function(i) {
+                                if (i>2) {
+                                     addQuestionFormDeleteLink($(this));
+                                     console.log('add del');
+                                }
+
                         });
 
                         // добавьте привязку "добавить тег" и li к тегам ul
@@ -47,7 +64,7 @@
 
                         // почитайте текущие вводы формы, которые у вас есть (например, 2) и используйте
                         // это в качестве нового индекса при вставке нового объекта (например, 2)
-                        $collectionHolder.data('index', $collectionHolder.find(':input').length);
+                        $collectionHolder.data('index', $collectionHolder.find('.question').length);
 
                         $addQuestionLink.on('click', function(e) {
                                 // предотвратите ссылку от создания "#" в URL
@@ -60,7 +77,7 @@
 
                 function addQuestionForm($collectionHolder, $newLinkLi) {
                         // Получить прототип данных, объяснённый ранее
-                        var prototype = $collectionHolder.data('prototype');
+                        var prototype = $collectionHolder.data('prototype-question');
 
                         // получить новый индекс
                         var index = $collectionHolder.data('index');
@@ -70,7 +87,7 @@
                         // Заменить '__name__label__' в HTML прототипа, чтобы
                         // он был числом, основанным на том, сколько объектов у нас есть
                         // newForm = newForm.replace(/__name__label__/g, index);
-                        newForm = newForm.replace(/__name__/g, index);
+                        newForm = newForm.replace(/__question_prot__/g, index);
                         // Заменить '__name__' в HTML прототипа на
                         // номер, основанный на количестве имеющихся объектов
                         // newForm = newForm.replace(/__name__/g, index);
@@ -79,7 +96,7 @@
                         $collectionHolder.data('index', index + 1);
 
                         // Отобразить форму на странице в li, до ссылки Li "добавить тег"
-                        var $newFormLi = $('<li></li>').append(newForm);
+                        var $newFormLi = $('<li></li>').append(newForm).addClass('question');
                         $newLinkLi.before($newFormLi);
                         addQuestionFormDeleteLink($newFormLi);
                 }
@@ -97,7 +114,96 @@
                         });
                 }
 
+                var $collectionHolderAnsw;
+
+                // установка ссылки "добавить тег"
+                var $addAnswLink = $('<a style="margin-left: 100px" href="#" class="add_question_link"><button>Добавить ответ</button></a>');
+                var $newLinkLiAnsw = $('<li></li>').append($addAnswLink);
+
+                jQuery(document).ready(function() {
+                        // Получите ul, содержащий коллекцию тегов
+                        $collectionHolderAnsw = $('ul.answers');
+
+                        // добавить ссылку удаления ко всем существующим элементам li в форме тегов
+                        $collectionHolderAnsw.find('.answer').each(function(i) {
+                                if (i > 2){
+                                        addAnswerFormDeleteLink($(this));
+                                }
+
+                        });
+
+                        // добавьте привязку "добавить тег" и li к тегам ul
+                        $collectionHolderAnsw.append($newLinkLiAnsw);
+
+                        // почитайте текущие вводы формы, которые у вас есть (например, 2) и используйте
+                        // это в качестве нового индекса при вставке нового объекта (например, 2)
+                        $collectionHolderAnsw.data('index', $collectionHolderAnsw.find('.answer').length);
+
+
+                        $addAnswLink.on('click', function(e) {
+                                // предотвратите ссылку от создания "#" в URL
+                                e.preventDefault();
+
+                                // добавьте новую форму тега (смотрите следующий блок кода)
+                                addAnswerForm($collectionHolderAnsw, $newLinkLiAnsw);
+                        });
+                });
+
+                function addAnswerForm($collectionHolderAnsw, $newLinkLiAnsw) {
+                        // Получить прототип данных, объяснённый ранее
+                        var prototype = $collectionHolderAnsw.data('prototype');
+                        console.log('prototype=' + prototype);
+                        // получить новый индекс
+                        var index = $collectionHolderAnsw.data('index');
+                        console.log('index=' + index);
+
+                        var newForm = prototype;
+                        // Вам нужно это только в случае, если вы не установили 'label', как "false" в вашем поле тегов в TaskType
+                        // Заменить '__name__label__' в HTML прототипа, чтобы
+                        // он был числом, основанным на том, сколько объектов у нас есть
+                        // newForm = newForm.replace(/__name__label__/g, index);
+                        newForm = newForm.replace(/__answer_prot__/g, index);
+                        console.log('newForm_posle_replace=' + index);
+                        // Заменить '__name__' в HTML прототипа на
+                        // номер, основанный на количестве имеющихся объектов
+                        // newForm = newForm.replace(/__name__/g, index);
+
+                        // увеличить индекс на единицу для следующего объекта
+                        $collectionHolderAnsw.data('index', index + 1);
+
+                        // Отобразить форму на странице в li, до ссылки Li "добавить тег"
+                        var $newFormLi = $('<li></li>').append(newForm).addClass('answer');
+                        $newLinkLiAnsw.before($newFormLi);
+                        addAnswerFormDeleteLink($newFormLi);
+                }
+
+                function addQuestionFormDeleteLink($QuestionFormLi) {
+                        var $removeFormA = $(' <a style="float: right; margin-top: -70px" href="#"><button>Удалить вопрос</button></a>');
+                        $QuestionFormLi.append($removeFormA);
+
+                        $removeFormA.on('click', function(e) {
+                                // предотвратить ссылку от создания "#" в URL
+                                e.preventDefault();
+
+                                // удалить li в форме тегов
+                                $QuestionFormLi.remove();
+                        });
+                }
+
+                function addAnswerFormDeleteLink($AnswerFormLi) {
+                        var $removeFormA = $(' <a style="float: right; margin-top: -40px" href="#"><button>Удалить ответ</button></a>');
+                        $AnswerFormLi.append($removeFormA);
+
+                        $removeFormA.on('click', function(e) {
+                                // предотвратить ссылку от создания "#" в URL
+                                e.preventDefault();
+
+                                // удалить li в форме тегов
+                                $AnswerFormLi.remove();
+                        });
+                }
         </script>
+</div>
 </div>
 
 

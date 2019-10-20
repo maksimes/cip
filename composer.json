@@ -34,7 +34,8 @@
     "require-dev": {
         "symfony/debug-pack": "^1.0",
         "symfony/profiler-pack": "^1.0",
-        "symfony/test-pack": "*"
+        "symfony/test-pack": "*",
+        "symfony/var-dumper": "4.2.*"
     },
     "config": {
         "preferred-install": {

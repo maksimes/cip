@@ -1,0 +1,178 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello SurveyController!{% endblock %}
+
+{% block body %}
+<style>
+    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
+    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
+</style>
+
+<div class="example-wrapper">
+
+
+    {{ form_start(form) }}
+        {{ form_errors(form) }}
+        {{ form_row(form.title) }}
+        {{ form_row(form.status) }}
+
+        <h3>Вопросы</h3>
+        <ul class="questions"
+            data-prototype-answer="{{ form_widget(form.questions.vars.prototype.answers.vars.prototype)|e }}"
+            data-prototype-question="{{ form_widget(form.questions.vars.prototype)|e }}">
+
+        </ul>
+
+
+
+    {{ form_end(form) }}
+
+        <script>
+                var $collectionHolder;
+
+                // установка ссылки "добавить тег"
+                var $addQuestionLink = $(' <a href="#" class="add_question_link"><button>Добавить вопрос</button></a>');
+                var $newLinkLi = $('<ul></ul>').append($addQuestionLink);
+
+                jQuery(document).ready(function() {
+                        // Получите ul, содержащий коллекцию тегов
+                        $collectionHolder = $('ul.questions');
+
+                        // добавить ссылку удаления ко всем существующим элементам li в форме тегов
+                        $collectionHolder.find('li').each(function() {
+                                addQuestionFormDeleteLink($(this));
+                        });
+
+                        // добавьте привязку "добавить тег" и li к тегам ul
+                        $collectionHolder.append($newLinkLi);
+
+                        // почитайте текущие вводы формы, которые у вас есть (например, 2) и используйте
+                        // это в качестве нового индекса при вставке нового объекта (например, 2)
+                        $collectionHolder.data('index', $collectionHolder.find(':input').length);
+
+                        $addQuestionLink.on('click', function(e) {
+                                // предотвратите ссылку от создания "#" в URL
+                                e.preventDefault();
+
+                                // добавьте новую форму тега (смотрите следующий блок кода)
+                                addQuestionForm($collectionHolder, $newLinkLi);
+                        });
+                });
+
+                function addQuestionForm($collectionHolder, $newLinkLi) {
+                        // Получить прототип данных, объяснённый ранее
+                        var prototype = $collectionHolder.data('prototype-question');
+
+                        // получить новый индекс
+                        var index = $collectionHolder.data('index');
+
+                        var newForm = prototype;
+                        // Вам нужно это только в случае, если вы не установили 'label', как "false" в вашем поле тегов в TaskType
+                        // Заменить '__name__label__' в HTML прототипа, чтобы
+                        // он был числом, основанным на том, сколько объектов у нас есть
+                        // newForm = newForm.replace(/__name__label__/g, index);
+                        newForm = newForm.replace(/__name__/g, index);
+                        // Заменить '__name__' в HTML прототипа на
+                        // номер, основанный на количестве имеющихся объектов
+                        // newForm = newForm.replace(/__name__/g, index);
+
+                        // увеличить индекс на единицу для следующего объекта
+                        $collectionHolder.data('index', index + 1);
+
+                        // Отобразить форму на странице в li, до ссылки Li "добавить тег"
+                        var $newFormLi = $('<li></li>').append(newForm);
+                        $newLinkLi.before($newFormLi);
+                        addQuestionFormDeleteLink($newFormLi);
+                }
+
+                function addQuestionFormDeleteLink($QuestionFormLi) {
+                        var $removeFormA = $(' <a href="#"><button>Удалить вопрос</button></a>');
+                        $QuestionFormLi.append($removeFormA);
+
+                        $removeFormA.on('click', function(e) {
+                                // предотвратить ссылку от создания "#" в URL
+                                e.preventDefault();
+
+                                // удалить li в форме тегов
+                                $QuestionFormLi.remove();
+                        });
+                }
+
+                var $collectionHolderAnswer;
+
+                // установка ссылки "добавить тег"
+                var $addAnswerLink = $('<a href="#" class="add_answer_link"><button>Добавить ответ</button></a>');
+                var $newLinkLiAnswer = $('<ul></ul>').append($addAnswerLink);
+
+                jQuery(document).ready(function() {
+                        // Получите ul, содержащий коллекцию тегов
+                        $collectionHolderAnswer = $('ul.questions');
+
+                        // добавить ссылку удаления ко всем существующим элементам li в форме тегов
+                        $collectionHolderAnswer.find('li').each(function() {
+                                addAnswerFormDeleteLink($(this));
+                        });
+
+                        // добавьте привязку "добавить тег" и li к тегам ul
+                        $collectionHolderAnswer.append($newLinkLiAnswer);
+
+                        // почитайте текущие вводы формы, которые у вас есть (например, 2) и используйте
+                        // это в качестве нового индекса при вставке нового объекта (например, 2)
+                        $collectionHolderAnswer.data('index', $collectionHolderAnswer.find(':input').length);
+
+                        $addAnswerLink.on('click', function(e) {
+                                // предотвратите ссылку от создания "#" в URL
+                                e.preventDefault();
+
+                                // добавьте новую форму тега (смотрите следующий блок кода)
+                                addAnswerForm($collectionHolderAnswer, $newLinkLiAnswer);
+                        });
+                });
+
+                function addAnswerForm($collectionHolderAnswer, $newLinkLiAnswer) {
+                        // Получить прототип данных, объяснённый ранее
+                        var prototype = $collectionHolderAnswer.data('prototype-answer');
+
+                        // получить новый индекс
+                        var index = $collectionHolderAnswer.data('index');
+
+                        var newForm = prototype;
+                        // Вам нужно это только в случае, если вы не установили 'label', как "false" в вашем поле тегов в TaskType
+                        // Заменить '__name__label__' в HTML прототипа, чтобы
+                        // он был числом, основанным на том, сколько объектов у нас есть
+                        // newForm = newForm.replace(/__name__label__/g, index);
+                        newForm = newForm.replace(/__name__/g, index);
+                        // Заменить '__name__' в HTML прототипа на
+                        // номер, основанный на количестве имеющихся объектов
+                        // newForm = newForm.replace(/__name__/g, index);
+
+                        // увеличить индекс на единицу для следующего объекта
+                        $collectionHolderAnswer.data('index', index + 1);
+
+                        // Отобразить форму на странице в li, до ссылки Li "добавить тег"
+                        var $newFormLiAnswer = $('<li></li>').append(newForm);
+                        $newLinkLiAnswer.before($newFormLiAnswer);
+                        addAnswerFormDeleteLink($newFormLiAnswer);
+                }
+
+                function addAnswerFormDeleteLink($AnswerFormLi) {
+                        var $removeFormA = $(' <a href="#"><button>Удалить ответ</button></a>');
+                        $AnswerFormLi.append($removeFormA);
+
+                        $removeFormA.on('click', function(e) {
+                                // предотвратить ссылку от создания "#" в URL
+                                e.preventDefault();
+
+                                // удалить li в форме тегов
+                                $AnswerFormLi.remove();
+                        });
+                }
+
+        </script>
+</div>
+
+
+
+
+
+{% endblock %}

@@ -8,6 +8,7 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 
 class QuestionType extends AbstractType
 {
@@ -21,6 +22,16 @@ class QuestionType extends AbstractType
             ))
             ->add('required', null, array('label' => 'Сделать вопрос обязательным для ответа'))
         ;
+        $builder->add('answers', CollectionType::class, array(
+            'label' => false,
+            'entry_type' => AnswerType::class,
+            'entry_options' => array('label' => false),
+            'allow_add' => true,
+            'by_reference' => false,
+            'allow_delete' => true,
+            'prototype' => true,
+            'prototype_name' => '__answer_prot__'
+        ));
     }
 
     public function configureOptions(OptionsResolver $resolver)
