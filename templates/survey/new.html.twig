@@ -40,6 +40,27 @@
     {{ form_end(form) }}
 
         <script>
+
+
+
+
+                function Survey(params) {
+
+                    var $linkAdd = $(' <a style="margin-top: 20px;" ef="#" class="add_question_link"><button>Добавить '+ params.nameDomEl +'</button></a>');
+                    var $newLinkLi = $('<li></li>').append($linkAdd);
+
+                    params.collectionHolder.find(params.selectorDomEl).each(function(i) {
+                        if (i>minDomEl) {
+                            addQuestionFormDeleteLink($(this));
+                            console.log('add del');
+                        }
+                    });
+                    params.collectionHolder.append($newLinkLi);
+
+
+                }
+
+
                 var $collectionHolder;
 
                 // установка ссылки "добавить тег"
@@ -114,7 +135,7 @@
                         });
                 }
 
-                var $collectionHolderAnsw;
+                var $collectionHolderAnswArr;
 
                 // установка ссылки "добавить тег"
                 var $addAnswLink = $('<a style="margin-left: 100px" href="#" class="add_question_link"><button>Добавить ответ</button></a>');
@@ -122,22 +143,28 @@
 
                 jQuery(document).ready(function() {
                         // Получите ul, содержащий коллекцию тегов
-                        $collectionHolderAnsw = $('ul.answers');
+                        $collectionHolderAnswArr = $('ul.answers');
+
 
                         // добавить ссылку удаления ко всем существующим элементам li в форме тегов
-                        $collectionHolderAnsw.find('.answer').each(function(i) {
+                        $collectionHolderAnswArr.each(function() {
+                            $(this).find('.answer').each(function(i) {
                                 if (i > 2){
-                                        addAnswerFormDeleteLink($(this));
+                                    addAnswerFormDeleteLink($(this));
                                 }
-
+                            })
                         });
 
                         // добавьте привязку "добавить тег" и li к тегам ul
-                        $collectionHolderAnsw.append($newLinkLiAnsw);
+                        $collectionHolderAnswArr.each(function() {
+                            $(this).append($newLinkLiAnsw);
+                        })
 
                         // почитайте текущие вводы формы, которые у вас есть (например, 2) и используйте
                         // это в качестве нового индекса при вставке нового объекта (например, 2)
-                        $collectionHolderAnsw.data('index', $collectionHolderAnsw.find('.answer').length);
+                        $collectionHolderAnswArr.each(function () {
+                                $(this).data('index', $(this).find('.answer').length);
+                        })
 
 
                         $addAnswLink.on('click', function(e) {
@@ -145,7 +172,8 @@
                                 e.preventDefault();
 
                                 // добавьте новую форму тега (смотрите следующий блок кода)
-                                addAnswerForm($collectionHolderAnsw, $newLinkLiAnsw);
+                            console.log($(this).parent());
+                                addAnswerForm($(this).parents('.answers'), $newLinkLiAnsw);
                         });
                 });
 
