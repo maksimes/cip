@@ -7,6 +7,7 @@ use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use App\Entity\Survey;
+use App\Entity\Question;
 use Doctrine\DBAL\Types\TextType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
@@ -33,7 +34,8 @@ class SurveyType extends AbstractType
             'by_reference' => false,
             'allow_delete' => true,
             'prototype' => true,
-            'prototype_name' => '__question_prot__'
+            'prototype_name' => '__question_prot__',
+            'prototype_data' => new Question(),
         ));
     }
 

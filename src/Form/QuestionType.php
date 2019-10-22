@@ -3,6 +3,7 @@
 namespace App\Form;
 
 use App\Entity\Question;
+use App\Entity\Answer;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -30,7 +31,9 @@ class QuestionType extends AbstractType
             'by_reference' => false,
             'allow_delete' => true,
             'prototype' => true,
-            'prototype_name' => '__answer_prot__'
+            'prototype_name' => '__answer_prot__',
+            'prototype_data' => new Answer(),
+
         ));
     }
 

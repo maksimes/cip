@@ -12,8 +12,8 @@
 
 <div class="example-wrapper">
 
+        {{ form_start(form) }}
 
-    {{ form_start(form) }}
         {{ form_row(form.title) }}
         {{ form_row(form.status) }}
         {{ form_errors(form) }}
@@ -71,11 +71,17 @@
 
                     this.addForm = function() {
                         var prototype = params.collectionHolder.data(params.prototypeAttr);
+
                         var index = params.collectionHolder.data('index');
                         var newForm = prototype;
-                        newForm = newForm.replace("/"+ params.prototypeName +"/g", index);
                         params.collectionHolder.data('index', index + 1);
                         var $newFormLi = $('<li></li>').append(newForm).addClass(params.domElClass);
+                        if (params.domElClass == 'question') {
+                            var prototypeAnsw = params.collectionHolder.data('prototype-answer');
+                            intanceAnsw1 = prototypeAnsw.replace("/"+ params.prototypeName +"/g", index).replace("/__answer_prot__/g", 0);
+                            intanceAnsw2 = prototypeAnsw.replace("/"+ params.prototypeName +"/g", index).replace("/__answer_prot__/g", 1);
+                            $newFormLi = $newFormLi.append(intanceAnsw1).append(intanceAnsw2);
+                        }
                         $newLinkLi.before($newFormLi);
                         this.addFormDeleteLink($newFormLi);
 
@@ -88,15 +94,15 @@
                             e.preventDefault();
                             newFormLi.remove();
                         });
-                            var answersObj = new Survey({
-                                    nameDomEl: 'ответ',
-                                    collectionHolder: $('ul.answers'),
-                                    domElClass: 'answer',
-                                    domElementsClass: 'answers',
-                                    prototypeAttr: 'prototype',
-                                    prototypeName: '__answer_prot__',
-                                    minDomEl: 2,
-                            });
+//                            var answersObj = new Survey({
+//                                    nameDomEl: 'ответ',
+//                                    collectionHolder: $('ul.answers'),
+//                                    domElClass: 'answer',
+//                                    domElementsClass: 'answers',
+//                                    prototypeAttr: 'prototype',
+//                                    prototypeName: '__answer_prot__',
+//                                    minDomEl: 2,
+//                            });
                     }
                 }
 

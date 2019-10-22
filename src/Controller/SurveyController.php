@@ -33,6 +33,12 @@ class SurveyController extends AbstractController
         $question1->addAnswer($answer1);
         $question1->addAnswer($answer2);
         $survey->addQuestion($question1);
+//        $question2 = new Question();
+//        $answer21 = new Answer();
+//        $answer22 = new Answer();
+//        $question2->addAnswer($answer21);
+//        $question2->addAnswer($answer22);
+//        $survey->addQuestion($question2);
 
 
         $form = $this->createForm(SurveyType::class, $survey);
