@@ -65,6 +65,16 @@
                         $linkAdd.on('click', function(e) {
                                 e.preventDefault();
                                 they.addForm($(this).parents('.' + params.domElementsClass), $newLinkLi);
+
+                                // var answersObj = new Survey({
+                                //         nameDomEl: 'ответ',
+                                //         collectionHolder: $('ul.answers'),
+                                //         domElClass: 'answer',
+                                //         domElementsClass: 'answers',
+                                //         prototypeAttr: 'prototype',
+                                //         prototypeName: '__answer_prot__',
+                                //         minDomEl: 2,
+                                // });
                         });
 
 
@@ -73,9 +83,23 @@
                         var prototype = params.collectionHolder.data(params.prototypeAttr);
                         var index = params.collectionHolder.data('index');
                         var newForm = prototype;
-                        newForm = newForm.replace("/"+ params.prototypeName +"/g", index);
-                        params.collectionHolder.data('index', index + 1);
-                        var $newFormLi = $('<li></li>').append(newForm).addClass(params.domElClass);
+                        // var $newFormLi;
+
+                        if (params.domElClass === 'question') {
+                                var prototypeAnsw = params.collectionHolder.data('prototype-answer');
+                                var intanceAnsw1 = prototypeAnsw.replace(new RegExp(params.prototypeName,'g'), index).replace(new RegExp('__answer_prot__', 'g'), 0);
+                                var intanceAnsw2 = prototypeAnsw.replace(new RegExp(params.prototypeName,'g'), index).replace(new RegExp('__answer_prot__', 'g'), 1);
+                                var ulAnswersPlus2Answers = $('<ul class="answers"></ul>').append(intanceAnsw1).append(intanceAnsw2);
+                                newForm = newForm.replace(new RegExp(params.prototypeName, 'g'), index);
+                                params.collectionHolder.data('index', index + 1);
+                                var $newFormLi = $('<li></li>').append(newForm).addClass(params.domElClass).append(ulAnswersPlus2Answers);
+
+                        } else {
+                                newForm = newForm.replace(new RegExp(params.prototypeName, 'g'), index);
+                                params.collectionHolder.data('index', index + 1);
+                                var $newFormLi = $('<li></li>').append(newForm).addClass(params.domElClass);
+                        }
+
                         $newLinkLi.before($newFormLi);
                         this.addFormDeleteLink($newFormLi);
 
@@ -88,15 +112,7 @@
                             e.preventDefault();
                             newFormLi.remove();
                         });
-                            var answersObj = new Survey({
-                                    nameDomEl: 'ответ',
-                                    collectionHolder: $('ul.answers'),
-                                    domElClass: 'answer',
-                                    domElementsClass: 'answers',
-                                    prototypeAttr: 'prototype',
-                                    prototypeName: '__answer_prot__',
-                                    minDomEl: 2,
-                            });
+
                     }
                 }
 
