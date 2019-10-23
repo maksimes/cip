@@ -28,17 +28,22 @@ class SurveyController extends AbstractController
     {
         $survey = new Survey();
         $question1 = new Question();
-        $answer1 = new Answer();
-        $answer2 = new Answer();
-        $question1->addAnswer($answer1);
-        $question1->addAnswer($answer2);
+        $question2 = new Question();
+
+        $answer11 = new Answer();
+        $answer12 = new Answer();
+        $answer13 = new Answer();
+        $answer21 = new Answer();
+        $answer22 = new Answer();
+        $answer23 = new Answer();
+        $question1->addAnswer($answer11);
+        $question1->addAnswer($answer12);
+        $question1->addAnswer($answer13);
+        $question2->addAnswer($answer21);
+        $question2->addAnswer($answer22);
+        $question2->addAnswer($answer23);
         $survey->addQuestion($question1);
-//        $question2 = new Question();
-//        $answer21 = new Answer();
-//        $answer22 = new Answer();
-//        $question2->addAnswer($answer21);
-//        $question2->addAnswer($answer22);
-//        $survey->addQuestion($question2);
+        $survey->addQuestion($question2);
 
 
         $form = $this->createForm(SurveyType::class, $survey);
@@ -47,8 +52,6 @@ class SurveyController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $survey = $form->getData();
 
-            dump($request);
-            dump($survey);
 
             $questions = $survey->getQuestions();
 //            $answers = $questions->getAnswers();
@@ -67,6 +70,40 @@ class SurveyController extends AbstractController
 //                    return $this->redirectToRoute('survey');
 //                }
 //            }
+
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($survey);
+            $em->flush();
+
+            return $this->redirectToRoute('success');
+        }
+
+        return $this->render('survey/new.html.twig', array(
+            'form' => $form->createView(),
+        ));
+    }
+
+    /**
+     * @Route("/survey_edit", name="survey_edit")
+     */
+    public function edit(Request $request) {
+        $survey = new Survey();
+        $question1 = new Question();
+        $answer1 = new Answer();
+        $answer2 = new Answer();
+        $question1->addAnswer($answer1);
+        $question1->addAnswer($answer2);
+        $survey->addQuestion($question1);
+
+
+        $form = $this->createForm(SurveyType::class, $survey);
+
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $survey = $form->getData();
+
+
+
 
             $em = $this->getDoctrine()->getManager();
             $em->persist($survey);
