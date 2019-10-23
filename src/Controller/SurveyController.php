@@ -29,8 +29,11 @@ class SurveyController extends AbstractController
         $survey = new Survey();
         $question1 = new Question();
         $question2 = new Question();
+        $question1->setText('текст вопроса 1');
+        $question1->setRequired(true);
 
         $answer11 = new Answer();
+        $answer11->setText('текст ответа 1');
         $answer12 = new Answer();
         $answer13 = new Answer();
         $answer21 = new Answer();

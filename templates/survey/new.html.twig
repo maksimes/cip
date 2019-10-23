@@ -5,15 +5,59 @@
 {% block body %}
 
 <style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
+    .example-wrapper { margin: 1em auto; max-width: 1000px; width: 95%; font: 18px/1.5 sans-serif; }
     .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
         label {
                 float: left;
                 margin-right: 10px;
         }
+
         ul {
                 list-style-type: none;
         }
+
+        textarea {
+            resize: none;
+            width: 500px;
+            height: 30px;
+        }
+
+        .question {
+                border: 1px solid lightgray;
+                border-radius: 10px;
+                padding: 20px 200px 20px 20px;
+                margin-top: 20px;
+        }
+
+        .del_link_question {
+                margin-right: -150px;
+                float: right;
+                margin-top: -30px;
+        }
+
+        .del_link_question button {
+                color: darkred;
+                font-weight: 600;
+        }
+
+        .link_add_question {
+                margin-top: 20px;
+                text-align: center;
+        }
+
+        .del_link_answer {
+                float: right;
+                margin-top: -40px;
+        }
+
+        #survey_save {
+                font-size: 20px;
+        }
+        input#survey_title {
+             width: 500px;
+        }
+
+
 </style>
 
 
@@ -28,7 +72,7 @@
             data-prototype-answer="{{ form_widget(form.questions.vars.prototype.children['answers'].vars.prototype)|e }}"
             data-prototype-question="{{ form_widget(form.questions.vars.prototype)|e }}">
             {% for question in form.questions %}
-                <li  class="question" style="margin-top: 20px">
+                <div  class="question" style="margin-top: 20px">
                         {{ form_row(question.text) }}
                         {{ form_row(question.type) }}
                         {{ form_row(question.required) }}
@@ -37,7 +81,7 @@
                                         <div class="answer">{{ form_row(answer.text) }}</div>
                                 {% endfor %}
                         </ul>
-                </li>
+                </div>
             {% endfor %}
         </ul>
 
@@ -48,22 +92,31 @@
                 function Survey(params) {
                         //сохраняем контекст в переменную и делаем ссылку добавления полей
                         var they = this;
-                        var $linkAdd = $('<a style="margin-top: 20px;" ef="#" class="add_link"><button>Добавить ' + params.nameDomEl + '</button></a>');
-                        var $newLinkLi = $('<li></li>').append($linkAdd);
+                        var $linkAdd = $('<a style="margin-top: 20px;" href="#"><button>Добавить ' + params.nameDomEl + '</button></a>');
+                        var $newLinkLi = $('<li></li>').append($linkAdd).addClass('link_add_' + params.domElClass);
                         //добавляем ссылку удаления новым элементам, которые можно удалять(оставляя минимально допустимое количество)
-                        params.collectionHolder.each(function () {
-                            $(this).find('.' + params.domElClass).each(function (i) {
-                                if (i > params.minDomEl -1) {
-                                    console.log('перебор ансверов и квестенов');
-                                    console.log('добавить ссылку удал');
-                                    they.addFormDeleteLink($(this));
+                        // console.log(params.collectionHolder);
 
-                                }
-                            })
-                        });
-                        //добавляем ссылку добавления
-                        params.collectionHolder.each(function () {
-                            $(this).append($newLinkLi);
+
+                        this.addFormDeleteLink = function(newFormLi) {
+                                //создаем ссылку удаления
+                                var $removeFormLink = $('<li></li>').append('<a href="#"><button>Удалить '+ params.nameDomEl +'</button></a>').addClass('del_link_' + params.domElClass);
+                                newFormLi.append($removeFormLink);
+                                //удаляем поля при клике на неё
+                                $removeFormLink.on('click', function(e) {
+                                        e.preventDefault();
+                                        newFormLi.remove();
+                                });
+                        }
+                        //добавляем ссылки удаления полей
+                        params.collectionHolder.find('.' + params.domElClass).each(function () {
+                                they.addFormDeleteLink($(this));
+                        })
+
+                        //добавляем ссылки добавления полей
+                        params.collectionHolder.children().each(function () {
+                                $newLinkLi = $('<li></li>').append($linkAdd).addClass('link_add_' + params.domElClass);
+                            $(this).parent().append($newLinkLi);
                         })
                         //сохраняем в индекс количество дочерних элементов
                         params.collectionHolder.each(function () {
@@ -73,17 +126,17 @@
                         $linkAdd.on('click', function (e) {
                             e.preventDefault();
                             they.addForm($(this).parents('.' + params.domElementsClass), $newLinkLi);
-                        });
+                        })
 
                 //получаем и инкрементируем прототип коллекции
                     this.addForm = function() {
                         //проверяем не является ли экземпляром создания ответа
                         if (params.collectionHolder.data(params.prototypeAttr)) {
                             var prototype = params.collectionHolder.data(params.prototypeAttr);
-                            console.log(prototype);
+                            // console.log(prototype);
                         } else {
                             var prototype = params.prototype_data;
-                            console.log(prototype);
+                            // console.log(prototype);
                         }
                         var index = params.collectionHolder.data('index');
                         var newForm = prototype;
@@ -100,8 +153,10 @@
                                 });
                                 newForm = newForm.replace(new RegExp(params.prototypeName, 'g'), index);
                                 params.collectionHolder.data('index', index + 1);
-                                $newFormLi = $('<li></li>').append(newForm).addClass(params.domElClass).append(ulAnswersPlus2Answers);
+                                console.log(params.collectionHolder);
+                                $newFormLi = $(newForm).addClass(params.domElClass).append(ulAnswersPlus2Answers);
                                 //новый объект создания ответов в вопросах по клику
+                                console.log($newFormLi);
                                 var newAnswersObj = new Survey({
                                         nameDomEl: 'ответ',
                                         collectionHolder: $newFormLi.find('ul.answers'),
@@ -113,7 +168,8 @@
                                         questionIndex: index,
                                         questionPrototypeName: params.prototypeName,
                                         minDomEl: 2,
-                                });
+                                })
+
                         } else {
                                 if(params.questionPrototypeName) {
                                     newForm = newForm.replace(new RegExp(params.questionPrototypeName, 'g'), params.questionIndex);
@@ -127,37 +183,34 @@
                         this.addFormDeleteLink($newFormLi);
                     }
 
-                    this.addFormDeleteLink = function(newFormLi) {
-                //создаем ссылку удаления
-                        var $removeFormLink = $('<a style="float: right; margin-top: -45px" href="#"><button>Удалить '+ params.nameDomEl +'</button></a>');
-                        newFormLi.append($removeFormLink);
-                //удаляем поля при клике на неё
-                        $removeFormLink.on('click', function(e) {
-                            e.preventDefault();
-                            newFormLi.remove();
-                        });
-                    }
+
                 }
 
-                //создаем экзепляры вопроса и ответа
-                var questionObj = new Survey({
-                        nameDomEl: 'вопрос',
-                        collectionHolder: $('ul.questions'),
-                        domElClass: 'question',
-                        domElementsClass: 'questions',
-                        prototypeAttr: 'prototype-question',
-                        prototypeName: '__question_prot__',
-                        minDomEl: 1,
-                });
-                var answersObj = new Survey({
-                        nameDomEl: 'ответ',
-                        collectionHolder: $('ul.answers'),
-                        domElClass: 'answer',
-                        domElementsClass: 'answers',
-                        prototypeAttr: 'prototype',
-                        prototypeName: '__answer_prot__',
-                        minDomEl: 2,
-                });
+                //создаем экзепляры вопросов и ответов
+                $('.questions').each(function () {
+                                var questionObj = new Survey({
+                                        nameDomEl: 'вопрос',
+                                        collectionHolder: $(this),
+                                        domElClass: 'question',
+                                        domElementsClass: 'questions',
+                                        prototypeAttr: 'prototype-question',
+                                        prototypeName: '__question_prot__',
+                                        minDomEl: 1,
+                                })
+                })
+
+                $('.answers').each(function () {
+                        var answersObj = new Survey({
+                                nameDomEl: 'ответ',
+                                collectionHolder: $(this),
+                                domElClass: 'answer',
+                                domElementsClass: 'answers',
+                                prototypeAttr: 'prototype',
+                                prototypeName: '__answer_prot__',
+                                minDomEl: 2,
+                        })
+                })
+
 
         </script>
 </div>
