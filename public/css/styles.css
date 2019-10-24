@@ -1,0 +1,94 @@
+.example-wrapper { margin: 1em auto; max-width: 1000px; width: 95%; font: 18px/1.5 sans-serif; }
+.example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
+label {
+    float: left;
+    margin-right: 10px;
+}
+.after_survey {
+ color: gray;
+}
+
+ul {
+    list-style-type: none;
+}
+
+a, a:active, a:visited {
+    color: blue;
+}
+
+a:hover, a:focus {
+    color: darkblue;
+}
+
+textarea {
+    resize: none;
+    width: 500px;
+    height: 30px;
+}
+
+.question {
+    border: 1px solid lightgray;
+    border-radius: 10px;
+    padding: 20px 200px 20px 20px;
+    margin-top: 20px;
+}
+
+.del_link_question {
+    margin-right: -150px;
+    float: right;
+    margin-top: -30px;
+}
+
+.del_link_question button {
+    color: darkred;
+    font-weight: 600;
+}
+
+.link_add_question {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.del_link_answer {
+    float: right;
+    margin-top: -40px;
+}
+
+#survey_save {
+    font-size: 20px;
+}
+input#survey_title {
+    width: 500px;
+}
+.errors-list {
+    color: red;
+}
+.edit-survey-link {
+    margin-left: 40px;
+    text-decoration: none;
+}
+
+table.survey-list {
+    font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+    text-align: center;
+    border-collapse: collapse;
+    border-spacing: 5px;
+    background: #f2f4f1;
+    border-radius: 10px;
+    min-width: 800px;
+}
+
+tr.survey-in-list {
+    font-size: 16px;
+    font-weight: 500;
+    padding: 10px;
+    border-top: 1px solid lightgray;
+    border-radius: 10px;
+}
+
+tr.survey-in-list:first-child {
+    border-top: none;
+}
+.survey-list td {
+    padding: 10px;
+}

@@ -21,32 +21,38 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class SurveyController extends AbstractController
 {
+
     /**
-     * @Route("/survey", name="survey")
+     * @Route("/list", name="survey_list")
+     */
+    public function list(Request $request)
+    {
+
+        $surveys = $this->getDoctrine()->getRepository(Survey::class)->findAll();
+        $color = $request->query->get('color') or 'red';
+        $message = $request->query->get('message');
+        $data =[
+            'surveys' => $surveys,
+            'color' => $color ? $color : '',
+            'message' => $message ? $message : '',
+        ];
+
+        return $this->render('survey/survey_list.html.twig', $data);
+    }
+
+
+    /**
+     * @Route("/new", name="new")
      */
     public function new(Request $request)
     {
         $survey = new Survey();
         $question1 = new Question();
-        $question2 = new Question();
-        $question1->setText('текст вопроса 1');
-        $question1->setRequired(true);
-
         $answer11 = new Answer();
-        $answer11->setText('текст ответа 1');
         $answer12 = new Answer();
-        $answer13 = new Answer();
-        $answer21 = new Answer();
-        $answer22 = new Answer();
-        $answer23 = new Answer();
         $question1->addAnswer($answer11);
         $question1->addAnswer($answer12);
-        $question1->addAnswer($answer13);
-        $question2->addAnswer($answer21);
-        $question2->addAnswer($answer22);
-        $question2->addAnswer($answer23);
         $survey->addQuestion($question1);
-        $survey->addQuestion($question2);
 
 
         $form = $this->createForm(SurveyType::class, $survey);
@@ -54,37 +60,18 @@ class SurveyController extends AbstractController
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $survey = $form->getData();
-
-
-            $questions = $survey->getQuestions();
-//            $answers = $questions->getAnswers();
-
-//            foreach ($questions as $question) {
-//                $required = $question->getRequired(true);
-//            }
-//            if (isset($required) && $required == null) {
-//                return $this->redirectToRoute('survey');
-//            }
-//
-//            if($survey->getStatus() == 'active') {
-//                $repository = $this->getDoctrine()->getRepository(Survey::class);
-//                $again_active = $repository->findOneBy(['status' => 'active']);
-//                if(isset($again_active)) {
-//                    return $this->redirectToRoute('survey');
-//                }
-//            }
-
             $em = $this->getDoctrine()->getManager();
             $em->persist($survey);
             $em->flush();
 
-            return $this->redirectToRoute('success');
+            return $this->redirectToRoute('survey_list');
         }
 
         return $this->render('survey/new.html.twig', array(
             'form' => $form->createView(),
         ));
     }
+
 
     /**
      * @Route("/edit/{id}", name="survey_edit")
@@ -102,11 +89,105 @@ class SurveyController extends AbstractController
             $em->persist($survey);
             $em->flush();
 
-            return $this->redirectToRoute('success');
+            return $this->redirectToRoute('survey_list');
         }
 
         return $this->render('survey/new.html.twig', array(
             'form' => $form->createView(),
         ));
     }
+
+
+    /**
+     * @Route("/survey_activate/{id}", name="survey_activate")
+     */
+    public function activate(Request $request, Survey $survey) {
+        $surveys = $this->getDoctrine()->getRepository(Survey::class)->findAll();
+        foreach($surveys as $survey_one) {
+            if($survey_one->getStatus() == "active") {
+
+                return $this->redirectToRoute('survey_list', array('message' => 'Уже есть активный опрос', 'color' => 'red'));
+            }
+
+        }
+        $em = $this->getDoctrine()->getManager();
+        $survey->setStatus('active');
+        $em->persist($survey);
+        $em->flush();
+        return $this->redirectToRoute('survey_list', array('message' => 'Опрос активирован', 'color' => 'green'), 301);
+    }
+
+
+    /**
+     * @Route("/survey_del/{id}", name="survey_del")
+     */
+    public function delete(Request $request, Survey $survey) {
+
+
+        $form = $this->createForm(SurveyType::class, $survey);
+
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $survey = $form->getData();
+
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($survey);
+            $em->flush();
+
+            return $this->redirectToRoute('survey_list');
+        }
+
+        return $this->render('survey/new.html.twig', array(
+            'form' => $form->createView(),
+        ));
+    }
+
+
+    /**
+     * @Route("/survey_view_result/{id}", name="survey_view_result")
+     */
+    public function view_result(Request $request, Survey $survey) {
+
+        $form = $this->createForm(SurveyType::class, $survey);
+
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $survey = $form->getData();
+
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($survey);
+            $em->flush();
+
+            return $this->redirectToRoute('survey_list');
+        }
+
+        return $this->render('survey/new.html.twig', array(
+            'form' => $form->createView(),
+        ));
+    }
+
+
+    /**
+     * @Route("/survey_close/{id}", name="survey_close")
+     */
+    public function close(Request $request, Survey $survey) {
+
+        $form = $this->createForm(SurveyType::class, $survey);
+
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $survey = $form->getData();
+
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($survey);
+            $em->flush();
+
+            return $this->redirectToRoute('survey_list');
+        }
+
+        return $this->render('survey/new.html.twig', array(
+            'form' => $form->createView(),
+        ));
+    }
+
 }
