@@ -87,16 +87,9 @@ class SurveyController extends AbstractController
     }
 
     /**
-     * @Route("/survey_edit", name="survey_edit")
+     * @Route("/edit/{id}", name="survey_edit")
      */
-    public function edit(Request $request) {
-        $survey = new Survey();
-        $question1 = new Question();
-        $answer1 = new Answer();
-        $answer2 = new Answer();
-        $question1->addAnswer($answer1);
-        $question1->addAnswer($answer2);
-        $survey->addQuestion($question1);
+    public function edit(Request $request, Survey $survey) {
 
 
         $form = $this->createForm(SurveyType::class, $survey);
@@ -104,9 +97,6 @@ class SurveyController extends AbstractController
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $survey = $form->getData();
-
-
-
 
             $em = $this->getDoctrine()->getManager();
             $em->persist($survey);

@@ -4,6 +4,7 @@ namespace App\Form;
 
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use App\Entity\Survey;
@@ -21,10 +22,10 @@ class SurveyType extends AbstractType
     {
         $builder
             ->add('title', null, array('label' => 'Название опроса'))
-            ->add('status', ChoiceType::class, array(
-                'choices' => array('Черновик' => 'draft', 'Активный' => 'active', 'Закрытый' => 'closed'),
-                'label' => 'Статус опроса'))
-            ->add('save', SubmitType::class, array('label' => 'Создать опрос'))
+            ->add('status', HiddenType::class, array(
+                'data' => 'draft',
+                'label' => false))
+            ->add('save', SubmitType::class, array('label' => 'Сохранить опрос'))
         ;
         $builder->add('questions', CollectionType::class, array(
             'label' => false,

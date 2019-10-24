@@ -10,7 +10,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\SurveyRepository")
- * @UniqueEntity("title")
+ * @UniqueEntity("title", message="Это название уже используется")
  */
 class Survey
 {
@@ -23,15 +23,12 @@ class Survey
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank(message="Заполните название опроса")
      */
     private $title;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Assert\Choice(
-     *     choices = { "active", "draft" },
-     *     message = "Выберите правильно статус."
-     * )
      */
     private $status;
 
@@ -46,6 +43,7 @@ class Survey
      *      min = 1,
      *      minMessage = "Должен быть создан хотябы {{ limit }} вопрос",
      * )
+     * @Assert\Valid
      */
     private $questions;
 
