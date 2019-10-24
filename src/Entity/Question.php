@@ -5,6 +5,7 @@ namespace App\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\QuestionRepository")
@@ -36,6 +37,10 @@ class Question
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Answer", mappedBy="question", orphanRemoval=true, cascade={"persist"})
+     * @Assert\Count(
+     *      min = 2,
+     *      minMessage = "Должно быть хотябы {{ limit }} варианта ответа ",
+     * )
      */
     private $answers;
 

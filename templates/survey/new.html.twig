@@ -56,6 +56,9 @@
         input#survey_title {
              width: 500px;
         }
+        .errors-list {
+                color: red;
+        }
 
 
 </style>
@@ -64,21 +67,25 @@
 <div class="example-wrapper">
 
         {{ form_start(form) }}
-        {{ form_row(form.title) }}
-        {{ form_row(form.status) }}
-        {{ form_errors(form) }}
+    {{ form_label(form.title) }}{{ form_widget(form.title) }}<div class="errors-list">{{ form_errors(form.title) }}</div>
+    {{ form_label(form.status) }}{{ form_widget(form.status) }}<div class="errors-list">{{ form_errors(form.status) }}</div>
+    <div class="errors-list">{{ form_errors(form) }}</div>
 
         <ul class="questions"
             data-prototype-answer="{{ form_widget(form.questions.vars.prototype.children['answers'].vars.prototype)|e }}"
             data-prototype-question="{{ form_widget(form.questions.vars.prototype)|e }}">
             {% for question in form.questions %}
                 <div  class="question" style="margin-top: 20px">
-                        {{ form_row(question.text) }}
-                        {{ form_row(question.type) }}
-                        {{ form_row(question.required) }}
+                        {{ form_label(question.text) }}{{ form_widget(question.text) }}<div class="errors-list">{{ form_errors(question.text) }}</div>
+                        {{ form_label(question.type) }}{{ form_widget(question.type) }}<div class="errors-list">{{ form_errors(question.type) }}</div>
+                        {{ form_label(question.required) }}{{ form_widget(question.required) }}<div class="errors-list">{{ form_errors(question.required) }}</div>
+                        {#{{ form_row(question.type) }}#}
+                        {#{{ form_row(question.required) }}#}
                         <ul class="answers" data-prototype="{{ form_widget(question.answers.vars.prototype)|e }}">
                                 {% for answer in question.answers %}
-                                        <div class="answer">{{ form_row(answer.text) }}</div>
+                                        <div class="answer">
+                                            {{ form_label(answer.text) }}{{ form_widget(answer.text) }}<div class="errors-list">{{ form_errors(answer.text) }}</div>
+                                        </div>
                                 {% endfor %}
                         </ul>
                 </div>
@@ -114,9 +121,9 @@
                         })
 
                         //добавляем ссылки добавления полей
-                        params.collectionHolder.children().each(function () {
+                        params.collectionHolder.each(function () {
                                 $newLinkLi = $('<li></li>').append($linkAdd).addClass('link_add_' + params.domElClass);
-                            $(this).parent().append($newLinkLi);
+                            $(this).append($newLinkLi);
                         })
                         //сохраняем в индекс количество дочерних элементов
                         params.collectionHolder.each(function () {
@@ -187,17 +194,17 @@
                 }
 
                 //создаем экзепляры вопросов и ответов
-                $('.questions').each(function () {
-                                var questionObj = new Survey({
-                                        nameDomEl: 'вопрос',
-                                        collectionHolder: $(this),
-                                        domElClass: 'question',
-                                        domElementsClass: 'questions',
-                                        prototypeAttr: 'prototype-question',
-                                        prototypeName: '__question_prot__',
-                                        minDomEl: 1,
-                                })
+//
+                var questionObj = new Survey({
+                        nameDomEl: 'вопрос',
+                        collectionHolder: $('.questions'),
+                        domElClass: 'question',
+                        domElementsClass: 'questions',
+                        prototypeAttr: 'prototype-question',
+                        prototypeName: '__question_prot__',
+                        minDomEl: 1,
                 })
+//
 
                 $('.answers').each(function () {
                         var answersObj = new Survey({
