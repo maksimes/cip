@@ -7,10 +7,11 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\SurveyRepository")
- * @UniqueEntity("title", message="Это название уже используется")
+ * @UniqueEntity("title", message="Это название опроса уже используется")
  */
 class Survey
 {
@@ -142,5 +143,23 @@ class Survey
         }
 
         return $this;
+    }
+
+
+    /**
+     * @Assert\Callback
+     */
+    public function validate(ExecutionContextInterface $context)
+    {
+        $error = true;
+        foreach($this->getQuestions() as $question) {
+            if($question->getRequired() == true) {
+                $error = false;
+            }
+        }
+        if($error == true) {
+            $context->buildViolation('Минимум один вопрос должен быть обязательным для ответа')
+                ->addViolation();
+        }
     }
 }

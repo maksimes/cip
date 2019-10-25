@@ -3,10 +3,8 @@ function Survey(params) {
     var they = this;
     var $linkAdd = $('<a style="margin-top: 20px;" href="#"><button>Добавить ' + params.nameDomEl + '</button></a>');
     var $newLinkLi = $('<li></li>').append($linkAdd).addClass('link_add_' + params.domElClass);
+
     //добавляем ссылку удаления новым элементам, которые можно удалять(оставляя минимально допустимое количество)
-    // console.log(params.collectionHolder);
-
-
     this.addFormDeleteLink = function(newFormLi) {
         //создаем ссылку удаления
         var $removeFormLink = $('<li></li>').append('<a href="#"><button>Удалить '+ params.nameDomEl +'</button></a>').addClass('del_link_' + params.domElClass);
@@ -21,7 +19,6 @@ function Survey(params) {
     params.collectionHolder.find('.' + params.domElClass).each(function () {
         they.addFormDeleteLink($(this));
     })
-
     //добавляем ссылки добавления полей
     params.collectionHolder.each(function () {
         $newLinkLi = $('<li></li>').append($linkAdd).addClass('link_add_' + params.domElClass);
@@ -37,15 +34,13 @@ function Survey(params) {
         they.addForm($(this).parents('.' + params.domElementsClass), $newLinkLi);
     })
 
-    //получаем и инкрементируем прототип коллекции
+    //получаем и инкрементируем значение дата прототипа коллекции
     this.addForm = function() {
         //проверяем не является ли экземпляром создания ответа
         if (params.collectionHolder.data(params.prototypeAttr)) {
             var prototype = params.collectionHolder.data(params.prototypeAttr);
-            // console.log(prototype);
         } else {
             var prototype = params.prototype_data;
-            // console.log(prototype);
         }
         var index = params.collectionHolder.data('index');
         var newForm = prototype;
@@ -62,10 +57,8 @@ function Survey(params) {
             });
             newForm = newForm.replace(new RegExp(params.prototypeName, 'g'), index);
             params.collectionHolder.data('index', index + 1);
-            console.log(params.collectionHolder);
             $newFormLi = $(newForm).addClass(params.domElClass).append(ulAnswersPlus2Answers);
             //новый объект создания ответов в вопросах по клику
-            console.log($newFormLi);
             var newAnswersObj = new Survey({
                 nameDomEl: 'ответ',
                 collectionHolder: $newFormLi.find('ul.answers'),
@@ -78,7 +71,6 @@ function Survey(params) {
                 questionPrototypeName: params.prototypeName,
                 minDomEl: 2,
             })
-
         } else {
             if(params.questionPrototypeName) {
                 newForm = newForm.replace(new RegExp(params.questionPrototypeName, 'g'), params.questionIndex);
@@ -91,12 +83,9 @@ function Survey(params) {
         $newLinkLi.before($newFormLi);
         this.addFormDeleteLink($newFormLi);
     }
-
-
 }
 
 //создаем экзепляры вопросов и ответов
-//
 var questionObj = new Survey({
     nameDomEl: 'вопрос',
     collectionHolder: $('.questions'),
@@ -106,7 +95,6 @@ var questionObj = new Survey({
     prototypeName: '__question_prot__',
     minDomEl: 1,
 })
-//
 
 $('.answers').each(function () {
     var answersObj = new Survey({
@@ -119,4 +107,3 @@ $('.answers').each(function () {
         minDomEl: 2,
     })
 })
-

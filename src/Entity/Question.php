@@ -32,6 +32,10 @@ class Question
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\Choice(
+     *     choices = {"checkbox", "radio"},
+     *     message = "Выберите тип вопроса"
+     * )
      */
     private $type;
 

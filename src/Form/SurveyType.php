@@ -36,7 +36,6 @@ class SurveyType extends AbstractType
             'allow_delete' => true,
             'prototype' => true,
             'prototype_name' => '__question_prot__',
-            'prototype_data' => new Question(),
         ));
     }
 

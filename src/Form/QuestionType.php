@@ -32,7 +32,6 @@ class QuestionType extends AbstractType
             'allow_delete' => true,
             'prototype' => true,
             'prototype_name' => '__answer_prot__',
-            'prototype_data' => new Answer(),
 
         ));
     }

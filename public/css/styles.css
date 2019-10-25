@@ -14,6 +14,7 @@ ul {
 
 a, a:active, a:visited {
     color: blue;
+    cursor: pointer;
 }
 
 a:hover, a:focus {
@@ -66,6 +67,18 @@ input#survey_title {
 .edit-survey-link {
     margin-left: 40px;
     text-decoration: none;
+}
+
+#survey_create {
+    margin-top: 30px;
+}
+
+#survey_create a button {
+    font-size: 20px;
+}
+
+#message-active {
+    font-weight: 600;
 }
 
 table.survey-list {

@@ -23,9 +23,25 @@ class SurveyController extends AbstractController
 {
 
     /**
+     * @Route("/", name="poll")
+     */
+    public function poll(Request $request)
+    {
+        $survey = $this->getDoctrine()->getRepository(Survey::class)->findOneBy(['status' => 'active']);
+
+        if($request->isMethod('post')) {
+            dump($request);
+        }
+
+        return $this->render('survey/poll.html.twig', array('survey' => $survey));
+
+    }
+
+
+    /**
      * @Route("/list", name="survey_list")
      */
-    public function list(Request $request)
+    public function survey_list(Request $request)
     {
 
         $surveys = $this->getDoctrine()->getRepository(Survey::class)->findAll();
@@ -44,7 +60,7 @@ class SurveyController extends AbstractController
     /**
      * @Route("/new", name="new")
      */
-    public function new(Request $request)
+    public function create(Request $request)
     {
         $survey = new Survey();
         $question1 = new Question();
@@ -67,7 +83,7 @@ class SurveyController extends AbstractController
             return $this->redirectToRoute('survey_list');
         }
 
-        return $this->render('survey/new.html.twig', array(
+        return $this->render('survey/edit.html.twig', array(
             'form' => $form->createView(),
         ));
     }
@@ -77,7 +93,6 @@ class SurveyController extends AbstractController
      * @Route("/edit/{id}", name="survey_edit")
      */
     public function edit(Request $request, Survey $survey) {
-
 
         $form = $this->createForm(SurveyType::class, $survey);
 
@@ -92,7 +107,7 @@ class SurveyController extends AbstractController
             return $this->redirectToRoute('survey_list');
         }
 
-        return $this->render('survey/new.html.twig', array(
+        return $this->render('survey/edit.html.twig', array(
             'form' => $form->createView(),
         ));
     }
@@ -122,24 +137,25 @@ class SurveyController extends AbstractController
      * @Route("/survey_del/{id}", name="survey_del")
      */
     public function delete(Request $request, Survey $survey) {
+        $em = $this->getDoctrine()->getManager();
+        $em->remove($survey);
+        $em->flush();
+
+        return $this->redirectToRoute('survey_list', array('message' => 'Опрос удален', 'color' => 'green'), 301);
+    }
 
 
-        $form = $this->createForm(SurveyType::class, $survey);
+    /**
+     * @Route("/survey_close/{id}", name="survey_close")
+     */
+    public function close(Request $request, Survey $survey) {
 
-        $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
-            $survey = $form->getData();
+        $em = $this->getDoctrine()->getManager();
+        $survey->setStatus('closed');
+        $em->persist($survey);
+        $em->flush();
 
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($survey);
-            $em->flush();
-
-            return $this->redirectToRoute('survey_list');
-        }
-
-        return $this->render('survey/new.html.twig', array(
-            'form' => $form->createView(),
-        ));
+        return $this->redirectToRoute('survey_list', array('message' => 'Опрос закрыт', 'color' => 'green'), 301);
     }
 
 
@@ -158,31 +174,7 @@ class SurveyController extends AbstractController
             $em->persist($survey);
             $em->flush();
 
-            return $this->redirectToRoute('survey_list');
-        }
-
-        return $this->render('survey/new.html.twig', array(
-            'form' => $form->createView(),
-        ));
-    }
-
-
-    /**
-     * @Route("/survey_close/{id}", name="survey_close")
-     */
-    public function close(Request $request, Survey $survey) {
-
-        $form = $this->createForm(SurveyType::class, $survey);
-
-        $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
-            $survey = $form->getData();
-
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($survey);
-            $em->flush();
-
-            return $this->redirectToRoute('survey_list');
+            return $this->redirectToRoute('survey_list', 301);
         }
 
         return $this->render('survey/new.html.twig', array(

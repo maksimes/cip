@@ -4,14 +4,12 @@
 
 {% block body %}
 
-
 <div class="example-wrapper">
 
-        {{ form_start(form) }}
-        <div class="errors-list">{{ form_errors(form) }}</div>
-        {{ form_label(form.title) }}{{ form_widget(form.title) }}<div class="errors-list">{{ form_errors(form.title) }}</div>
-        {{ form_label(form.status) }}{{ form_widget(form.status) }}<div class="errors-list">{{ form_errors(form.status) }}</div>
-
+{{ form_start(form) }}
+        <div class="errors-list">{{ form_errors(form.title) }}{{ form_errors(form.status) }}{{ form_errors(form) }}</div>
+        {{ form_label(form.title) }}{{ form_widget(form.title) }}
+        {{ form_label(form.status) }}{{ form_widget(form.status) }}
         <ul class="questions"
             data-prototype-answer="{{ form_widget(form.questions.vars.prototype.children['answers'].vars.prototype)|e }}"
             data-prototype-question="{{ form_widget(form.questions.vars.prototype)|e }}">
@@ -28,13 +26,8 @@
                 </div>
             {% endfor %}
         </ul>
-
-    {{ form_end(form) }}
-
-
-
+{{ form_end(form) }}
 
 </div>
-
 
 {% endblock %}
