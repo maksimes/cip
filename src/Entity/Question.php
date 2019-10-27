@@ -27,6 +27,7 @@ class Question
 
     /**
      * @ORM\Column(type="text")
+     * @Assert\NotBlank(message="Заполните текст вопроса")
      */
     private $text;
 
@@ -45,6 +46,7 @@ class Question
      *      min = 2,
      *      minMessage = "Должно быть хотябы {{ limit }} варианта ответа ",
      * )
+     * @Assert\Valid
      */
     private $answers;
 

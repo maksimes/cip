@@ -1,0 +1,16 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Система опросов{% endblock %}
+
+{% block body %}
+
+<div class="example-wrapper">
+
+        <div id="index">
+                <a href="{{ path('poll') }}"><button id="to-index">Опрос для пользователей</button></a>
+                <a href="{{ path('survey_list') }}" id="link-survey-list"><button id="to-index">Список опросов для администраторов</button></a>
+        </div>
+
+</div>
+
+{% endblock %}

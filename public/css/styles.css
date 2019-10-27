@@ -88,7 +88,10 @@ table.survey-list {
     border-spacing: 5px;
     background: #f2f4f1;
     border-radius: 10px;
-    min-width: 800px;
+}
+
+td {
+    width: 250px;
 }
 
 tr.survey-in-list {
@@ -104,4 +107,35 @@ tr.survey-in-list:first-child {
 }
 .survey-list td {
     padding: 10px;
+}
+
+#errors {
+    color: red;
+}
+
+#index {
+    display: flex;
+    margin-top: 50px;
+}
+
+#index a button{
+    font-size: 20px;
+}
+
+#link-survey-list {
+    margin-left: 50px;
+}
+
+.js-result-pull {
+    width: 100px;
+    height: 20px;
+    background: lightgray;
+    float: left;
+    margin-right: 10px;
+}
+
+.result-pull-in {
+    height: 20px;
+    background: royalblue;
+    width: 0px;
 }

@@ -5,36 +5,65 @@ namespace App\Controller;
 use App\Entity\Answer;
 use App\Entity\Question;
 use App\Entity\Survey;
+use App\Entity\User;
+use App\Entity\UserAnswer;
 use App\Form\SurveyType;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Doctrine\ORM\Query\ResultSetMapping;
 
 
 class SurveyController extends AbstractController
 {
 
     /**
-     * @Route("/", name="poll")
+     * @Route("/", name="index")
+     */
+    public function index(Request $request)
+    {
+        return $this->render('survey/index.html.twig');
+    }
+
+
+    /**
+     * @Route("/poll", name="poll")
      */
     public function poll(Request $request)
     {
         $survey = $this->getDoctrine()->getRepository(Survey::class)->findOneBy(['status' => 'active']);
-
-        if($request->isMethod('post')) {
-            dump($request);
+        if(!$survey) {
+            return new Response('Нет доступного опроса');
+        }
+        if($request->isXmlHttpRequest()) {
+            $answers_id =  json_decode($request->getContent());
+            $answers_repository = $this->getDoctrine()->getRepository(Answer::class);
+            $user = new User();
+            $user->setSurvey($survey);
+            foreach ($answers_id as $id) {
+                $user_answer = new UserAnswer();
+                $user_answer->setAnswer($answers_repository->find($id))->setUser($user);
+                $em = $this->getDoctrine()->getManager();
+                $em->persist($user);
+                $em->persist($user_answer);
+                $em->flush();
+            }
+            return new Response($survey->getId());
         }
 
         return $this->render('survey/poll.html.twig', array('survey' => $survey));
-
     }
 
 
@@ -64,10 +93,9 @@ class SurveyController extends AbstractController
     {
         $survey = new Survey();
         $question1 = new Question();
-        $answer11 = new Answer();
-        $answer12 = new Answer();
-        $question1->addAnswer($answer11);
-        $question1->addAnswer($answer12);
+        $answer1 = new Answer();
+        $answer2 = new Answer();
+        $question1->addAnswer($answer1)->addAnswer($answer2);
         $survey->addQuestion($question1);
 
 
@@ -160,26 +188,68 @@ class SurveyController extends AbstractController
 
 
     /**
-     * @Route("/survey_view_result/{id}", name="survey_view_result")
+     * @Route("view_result/{id}", name="view_result")
      */
     public function view_result(Request $request, Survey $survey) {
 
-        $form = $this->createForm(SurveyType::class, $survey);
-
-        $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
-            $survey = $form->getData();
-
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($survey);
-            $em->flush();
-
-            return $this->redirectToRoute('survey_list', 301);
+        $ua_count_rebuilt = [];
+        $useranswers_count = $this->getDoctrine()->getRepository(UserAnswer::class)->findAllAnswersWithGroupCountUA($survey->getId());
+        foreach($useranswers_count as $ua_count) {
+            $ua_count_rebuilt[$ua_count['answers_id']] = $ua_count['val_count'];
         }
 
-        return $this->render('survey/new.html.twig', array(
-            'form' => $form->createView(),
-        ));
+        $users_count = count($this->getDoctrine()->getRepository(User::class)
+            ->findBy(['survey' => $survey->getId()]));
+
+        $data = [
+            'users_count' => $users_count,
+            'useranswers_count' => $ua_count_rebuilt,
+            'questions' => $survey->getQuestions(),
+        ];
+        return $this->render('survey/poll_result.html.twig',$data );
+    }
+
+
+    /**
+     * @Route("filter/{id}", name="filter")
+     */
+    public function filter(Request $request, Survey $survey) {
+
+        if($request->isXmlHttpRequest()) {
+            $answers_id =  json_decode($request->getContent());
+            $answers_repository = $this->getDoctrine()->getRepository(Answer::class);
+            $user = new User();
+            $user->setSurvey($survey);
+            foreach ($answers_id as $id) {
+                $user_answer = new UserAnswer();
+                $user_answer->setAnswer($answers_repository->find($id))->setUser($user);
+                $em = $this->getDoctrine()->getManager();
+                $em->persist($user);
+                $em->persist($user_answer);
+                $em->flush();
+            }
+            return new Response($survey->getId());
+        }
+
+        return $this->render('survey/filter.html.twig', array('survey' => $survey));
+
+        if ($request->isMethod('post')) {
+            $ua_count_rebuilt = [];
+            $useranswers_count = $this->getDoctrine()->getRepository(UserAnswer::class)->findAllAnswersWithGroupCountUA($survey->getId());
+            foreach ($useranswers_count as $ua_count) {
+                $ua_count_rebuilt[$ua_count['answers_id']] = $ua_count['val_count'];
+            }
+
+            $users_count = count($this->getDoctrine()->getRepository(User::class)
+                ->findBy(['survey' => $survey->getId()]));
+
+            $data = [
+                'users_count' => $users_count,
+                'useranswers_count' => $ua_count_rebuilt,
+                'questions' => $survey->getQuestions(),
+            ];
+            return $this->render('survey/poll_result.html.twig', $data);
+        }
     }
 
 }

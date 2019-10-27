@@ -9,45 +9,29 @@
         <h2>Пройдите опрос</h2>
         <h3>{{ survey.title }}</h3>
 
-    <form action="" id="form" method="post">
+    <form action="" method="post" id="survey-poll-form">
 
         {% for question in survey.questions %}
             <div>
-                <h4>{{ question.text }}</h4>
-                <div>
+                <h4>{{ question.text }} {% if question.required == true %} * {% endif %}</h4>
+                <div class="question-poll" data-question_id="{{ question.id }}" {% if question.required == true %} data-required = '1' {% endif %}>
                     {% for answer in question.answers %}
                         {% if question.type == 'radio' %}
-                            <input type="radio" name="{{ question.id }}" value="{{ answer.id }}">
-                            <span>{{ answer.text }}</span><br>
+                            <label for="{{ answer.id }}"><input type="radio" name="{{ question.id }}" value="{{ answer.id }}" id="{{ answer.id }}">
+                            {{ answer.text }}</label><br>
                         {% else %}
-                            <input type="checkbox" name="{{ answer.id }}" value="{{ question.id }}">
-                            <span>{{ answer.text }}</span><br>
+                            <label for="{{ answer.id }}"  ><input type="checkbox" name="{{ question.id }}" value="{{ answer.id }}" id="{{ answer.id }}">
+                            {{ answer.text }}</label><br>
                         {% endif %}
                     {% endfor %}
                 </div>
             </div>
 
         {% endfor %}
-        <input type="hidden" name="_csrf_token"
-               value="{{ csrf_token('authenticate') }}"
-        >
-        <button>Отправить</button>
+        <div id="errors"></div>
+        <button id="send-survey">Отправить</button>
     </form>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
 
 </div>
 

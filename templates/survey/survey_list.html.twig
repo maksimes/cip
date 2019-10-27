@@ -7,18 +7,14 @@
 
 
 <div class="example-wrapper">
-{% if message is defined %}
-<div id="message-active">
-    <span style="color: {{ color }}">{{ message }}</span>
-</div>
-{% endif %}
+
 <div>
         <h3>Активный опрос</h3>
         <table class="survey-list">
                 {% for survey in surveys if survey.status == "active" %}
                     <tr class="survey-in-list">
                         <td>{{ survey.title }}</td>
-                        <td><a href="{{ path('survey_view_result', {'id': survey.id}) }}" class="edit-survey-link">Посмотреть результаты</a></td>
+                        <td><a href="{{ path('view_result', {'id': survey.id}) }}" class="edit-survey-link">Посмотреть результаты</a></td>
                         <td><a href="{{ path('survey_close', {'id': survey.id}) }}" class="edit-survey-link">Закрыть опрос</a></td>
                         <td><a href="{{ path('survey_del', {'id': survey.id}) }}" class="edit-survey-link">Удалить опрос</a></td>
                     </tr>
@@ -45,7 +41,7 @@
             {% for survey in surveys if survey.status == "closed" %}
                 <tr class="survey-in-list">
                     <td>{{ survey.title }}</td>
-                    <td><a href="{{ path('survey_view_result', {'id': survey.id}) }}" class="edit-survey-link">Посмотреть результаты</a></td>
+                    <td><a href="{{ path('view_result', {'id': survey.id}) }}" class="edit-survey-link">Посмотреть результаты</a></td>
                     <td><a href="{{ path('survey_activate', {'id': survey.id}) }}" class="edit-survey-link">Активировать опрос</a></td>
                     <td><a href="{{ path('survey_del', {'id': survey.id}) }}" class="edit-survey-link">Удалить опрос</a></td>
                 </tr>

@@ -7,6 +7,12 @@
           {% block stylesheets %}{% endblock %}
     </head>
     <body>
+    {% if message is defined %}
+        <div id="message-active">
+            <span style="color: {{ color }}">{{ message }}</span>
+        </div>
+    {% endif %}
+
         {% block body %}{% endblock %}
         <script src="/js/jquery-3.4.1.js"></script>
         <script src="/js/scripts.js"></script>

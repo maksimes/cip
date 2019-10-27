@@ -19,22 +19,38 @@ class UserAnswerRepository extends ServiceEntityRepository
         parent::__construct($registry, UserAnswer::class);
     }
 
-    // /**
-    //  * @return UserAnswer[] Returns an array of UserAnswer objects
-    //  */
-    /*
-    public function findByExampleField($value)
+     /**
+      * @return UserAnswer[] Returns an array of UserAnswer objects
+      */
+
+    public function findAllByAnswer($answer)
     {
         return $this->createQueryBuilder('u')
-            ->andWhere('u.exampleField = :val')
-            ->setParameter('val', $value)
+            ->andWhere('u.answer = :val')
+            ->setParameter('val', $answer)
             ->orderBy('u.id', 'ASC')
             ->setMaxResults(10)
             ->getQuery()
             ->getResult()
         ;
     }
-    */
+
+
+    public function findAllAnswersWithGroupCountUA($survey_id)
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = 'SELECT a.id as answers_id, COUNT(ua.id) as val_count 
+                FROM answer a 
+                LEFT JOIN user_answer ua ON a.id=ua.answer_id 
+                INNER JOIN question q ON q.id=a.question_id 
+                INNER JOIN survey s ON s.id=q.survey_id 
+                WHERE s.id= :survey_id GROUP BY a.id';
+
+        $stmt = $conn->prepare($sql);
+        $stmt->execute(['survey_id' => $survey_id]);
+        return $stmt->fetchAll();
+    }
+
 
     /*
     public function findOneBySomeField($value): ?UserAnswer

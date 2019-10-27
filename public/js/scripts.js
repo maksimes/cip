@@ -107,3 +107,46 @@ $('.answers').each(function () {
         minDomEl: 2,
     })
 })
+
+//отправка и валидация результатов опроса
+$('#send-survey').on('click', function(e){
+    e.preventDefault();
+    var error;
+    $('.question-poll').each(function () {
+        if($(this).data('required') == '1') {
+            $(this).each(function () {
+                if($(this).children('input:checked').length < 1) {
+                    error = 'Ответьте на все вопросы со звездочкой';
+                };
+            })
+        }
+    })
+    if(error != undefined) {
+        $('#errors').text(error);
+        return;
+    }
+    var answers_id = {};
+    $('#survey-poll-form input:checked').each(function (i) {
+        answers_id[i] = $(this).attr('value');
+    })
+    var json_answ_id = JSON.stringify(answers_id);
+    $.ajax({
+        url: '/poll',
+        type: "post",
+        data: json_answ_id,
+        success: function(data) {
+            location.href = 'view_result/' + data;
+        }
+    });
+});
+
+//визулизация результатов опроса
+var computedWidthRes;
+var countAnswRes;
+var countUsersResPull = $('#result-poll').data('users-count');
+$('#result-poll .js-result-pull').each(function () {
+    countAnswRes = $(this).data('count');
+    computedWidthRes = 100 * countAnswRes / countUsersResPull;
+    $(this).children('.result-pull-in').css('width', computedWidthRes +'px');
+});
+
