@@ -216,24 +216,30 @@ class SurveyController extends AbstractController
     public function filter(Request $request, Survey $survey) {
 
         if($request->isXmlHttpRequest()) {
-            $answers_id =  json_decode($request->getContent());
-            $answers_repository = $this->getDoctrine()->getRepository(Answer::class);
-            $user = new User();
-            $user->setSurvey($survey);
-            foreach ($answers_id as $id) {
-                $user_answer = new UserAnswer();
-                $user_answer->setAnswer($answers_repository->find($id))->setUser($user);
-                $em = $this->getDoctrine()->getManager();
-                $em->persist($user);
-                $em->persist($user_answer);
-                $em->flush();
+
+            $simple_str = 'SELECT user_id, GROUP_CONCAT(answer_id) as conc_answers FROM user_answer GROUP BY user_id HAVING (conc_answers LIKE \'%135%\') AND (conc_answers LIKE \'%136%\' OR conc_answers LIKE \'%138%\')';
+            $questions_arr =  json_decode($request->getContent());
+//            dd($questions_arr);
+            $full_filter = '';
+            $ques_count = 0;
+            foreach($questions_arr as $question) {
+                $str_min = '';
+                $ans_count = 0;
+                foreach($question as $ans_id) {
+                    if ($ans_count != 0) {
+                        $str_min .= "OR";
+                    }
+                    $str_min .= " conc_answers LIKE '%" . $ans_id ."%' ";
+                    $ans_count++;
+                }
+                if($ques_count != 0) {
+                    $full_filter .= ' AND ';
+                }
+                $full_filter .= '(' . $str_min . ')';
+                $ques_count++;
             }
-            return new Response($survey->getId());
-        }
+            dd($full_filter);
 
-        return $this->render('survey/filter.html.twig', array('survey' => $survey));
-
-        if ($request->isMethod('post')) {
             $ua_count_rebuilt = [];
             $useranswers_count = $this->getDoctrine()->getRepository(UserAnswer::class)->findAllAnswersWithGroupCountUA($survey->getId());
             foreach ($useranswers_count as $ua_count) {
@@ -248,8 +254,12 @@ class SurveyController extends AbstractController
                 'useranswers_count' => $ua_count_rebuilt,
                 'questions' => $survey->getQuestions(),
             ];
-            return $this->render('survey/poll_result.html.twig', $data);
+//            return $this->render('survey/poll_result.html.twig', $data);
+            return new Response($survey->getId());
         }
+
+        return $this->render('survey/filter.html.twig', array('survey' => $survey));
+
     }
 
 }

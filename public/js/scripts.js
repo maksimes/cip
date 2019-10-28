@@ -115,7 +115,7 @@ $('#send-survey').on('click', function(e){
     $('.question-poll').each(function () {
         if($(this).data('required') == '1') {
             $(this).each(function () {
-                if($(this).children('input:checked').length < 1) {
+                if($(this).find('input:checked').length < 1) {
                     error = 'Ответьте на все вопросы со звездочкой';
                 };
             })
@@ -150,3 +150,31 @@ $('#result-poll .js-result-pull').each(function () {
     $(this).children('.result-pull-in').css('width', computedWidthRes +'px');
 });
 
+
+$('#send-filter').on('click', function(e){
+    e.preventDefault();
+
+    var questions = {};
+    var question = [];
+
+    $('#filter-form .question-poll').each(function () {
+        $(this).find('input:checked').each(function () {
+            question.push($(this).attr('value'));
+        })
+        if ($(this).find('input:checked').length > 0) {
+            questions[$(this).data('question_id')] = question;
+        }
+        question = [];
+    })
+    console.log(questions);
+    var json_answ_id = JSON.stringify(questions);
+    var url = $('#filter-form').attr('action');
+    $.ajax({
+        url: url,
+        type: "post",
+        data: json_answ_id,
+        success: function(data) {
+            // location.href = 'view_filter/' + data;
+        }
+    });
+});

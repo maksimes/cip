@@ -52,6 +52,20 @@ class UserAnswerRepository extends ServiceEntityRepository
     }
 
 
+    public function findAllUsersWithFilter($questions_answers)
+    {
+        $conn = $this->getEntityManager()->getConnection();
+
+        $sql = 'SELECT user_id, GROUP_CONCAT(answer_id) as conc_answers FROM user_answer GROUP BY user_id HAVING';
+
+
+
+        $stmt = $conn->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
+
+
     /*
     public function findOneBySomeField($value): ?UserAnswer
     {
