@@ -8,22 +8,11 @@ use App\Entity\Survey;
 use App\Entity\User;
 use App\Entity\UserAnswer;
 use App\Form\SurveyType;
-
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\CollectionType;
-use Symfony\Component\Form\Extension\Core\Type\HiddenType;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-use Symfony\Component\Serializer\Encoder\JsonEncoder;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
-use Symfony\Component\Serializer\Serializer;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
-use Doctrine\ORM\Query\ResultSetMapping;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 
 class SurveyController extends AbstractController
@@ -32,8 +21,7 @@ class SurveyController extends AbstractController
     /**
      * @Route("/", name="index")
      */
-    public function index(Request $request)
-    {
+    public function index(Request $request) {
         return $this->render('survey/index.html.twig');
     }
 
@@ -41,15 +29,18 @@ class SurveyController extends AbstractController
     /**
      * @Route("/poll", name="poll")
      */
-    public function poll(Request $request)
-    {
+    public function poll(Request $request) {
         $survey = $this->getDoctrine()->getRepository(Survey::class)->findOneBy(['status' => 'active']);
         if(!$survey) {
             return new Response('Нет доступного опроса');
         }
         if($request->isXmlHttpRequest()) {
-            $answers_id =  json_decode($request->getContent());
-            $answers_repository = $this->getDoctrine()->getRepository(Answer::class);
+            try {
+                $answers_id = json_decode($request->getContent());
+                $answers_repository = $this->getDoctrine()->getRepository(Answer::class);
+            } catch(\Exception $e) {
+                throw new NotFoundHttpException('Не удалось получить данные');
+            }
             $user = new User();
             $user->setSurvey($survey);
             foreach ($answers_id as $id) {
@@ -58,11 +49,14 @@ class SurveyController extends AbstractController
                 $em = $this->getDoctrine()->getManager();
                 $em->persist($user);
                 $em->persist($user_answer);
-                $em->flush();
+                try {
+                    $em->flush();
+                } catch(\Exception $e) {
+                    throw new NotFoundHttpException('Что-то пошло не так, данные не сохранены');
+                }
             }
             return new Response($survey->getId());
         }
-
         return $this->render('survey/poll.html.twig', array('survey' => $survey));
     }
 
@@ -70,18 +64,19 @@ class SurveyController extends AbstractController
     /**
      * @Route("/list", name="survey_list")
      */
-    public function survey_list(Request $request)
-    {
-
-        $surveys = $this->getDoctrine()->getRepository(Survey::class)->findAll();
-        $color = $request->query->get('color') or 'red';
-        $message = $request->query->get('message');
+    public function survey_list(Request $request) {
+        try {
+            $surveys = $this->getDoctrine()->getRepository(Survey::class)->findAll();
+        } catch(\Exception $e) {
+            throw new NotFoundHttpException('Данные не найдены');
+        }
+            $color = $request->query->get('color') or 'red';
+            $message = $request->query->get('message');
         $data =[
             'surveys' => $surveys,
             'color' => $color ? $color : '',
             'message' => $message ? $message : '',
         ];
-
         return $this->render('survey/survey_list.html.twig', $data);
     }
 
@@ -89,28 +84,26 @@ class SurveyController extends AbstractController
     /**
      * @Route("/new", name="new")
      */
-    public function create(Request $request)
-    {
+    public function create(Request $request) {
         $survey = new Survey();
         $question1 = new Question();
         $answer1 = new Answer();
         $answer2 = new Answer();
         $question1->addAnswer($answer1)->addAnswer($answer2);
         $survey->addQuestion($question1);
-
-
         $form = $this->createForm(SurveyType::class, $survey);
-
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $survey = $form->getData();
             $em = $this->getDoctrine()->getManager();
             $em->persist($survey);
-            $em->flush();
-
+            try {
+                $em->flush();
+            } catch(\Exception $e) {
+                throw new NotFoundHttpException('Что-то пошло не так, данные не сохранены');
+            }
             return $this->redirectToRoute('survey_list');
         }
-
         return $this->render('survey/edit.html.twig', array(
             'form' => $form->createView(),
         ));
@@ -121,20 +114,19 @@ class SurveyController extends AbstractController
      * @Route("/edit/{id}", name="survey_edit")
      */
     public function edit(Request $request, Survey $survey) {
-
         $form = $this->createForm(SurveyType::class, $survey);
-
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $survey = $form->getData();
-
             $em = $this->getDoctrine()->getManager();
             $em->persist($survey);
-            $em->flush();
-
+            try {
+                $em->flush();
+            } catch(\Exception $e) {
+                throw new NotFoundHttpException('Что-то пошло не так, данные не сохранены');
+            }
             return $this->redirectToRoute('survey_list');
         }
-
         return $this->render('survey/edit.html.twig', array(
             'form' => $form->createView(),
         ));
@@ -148,16 +140,20 @@ class SurveyController extends AbstractController
         $surveys = $this->getDoctrine()->getRepository(Survey::class)->findAll();
         foreach($surveys as $survey_one) {
             if($survey_one->getStatus() == "active") {
-
-                return $this->redirectToRoute('survey_list', array('message' => 'Уже есть активный опрос', 'color' => 'red'));
+                return $this->redirectToRoute('survey_list', array('message' => 'Уже есть активный опрос',
+                    'color' => 'red'));
             }
-
         }
         $em = $this->getDoctrine()->getManager();
         $survey->setStatus('active');
         $em->persist($survey);
-        $em->flush();
-        return $this->redirectToRoute('survey_list', array('message' => 'Опрос активирован', 'color' => 'green'), 301);
+        try {
+            $em->flush();
+        } catch(\Exception $e) {
+            throw new NotFoundHttpException('Не удалось сохранить данные');
+        }
+        return $this->redirectToRoute('survey_list', array('message' => 'Опрос активирован',
+            'color' => 'green'), 301);
     }
 
 
@@ -167,9 +163,13 @@ class SurveyController extends AbstractController
     public function delete(Request $request, Survey $survey) {
         $em = $this->getDoctrine()->getManager();
         $em->remove($survey);
-        $em->flush();
-
-        return $this->redirectToRoute('survey_list', array('message' => 'Опрос удален', 'color' => 'green'), 301);
+        try {
+            $em->flush();
+        } catch(\Exception $e) {
+            throw new NotFoundHttpException('Попытка удалить опрос завершилась неудачей');
+        }
+        return $this->redirectToRoute('survey_list', array('message' => 'Опрос удален',
+            'color' => 'green'), 301);
     }
 
 
@@ -177,13 +177,16 @@ class SurveyController extends AbstractController
      * @Route("/survey_close/{id}", name="survey_close")
      */
     public function close(Request $request, Survey $survey) {
-
         $em = $this->getDoctrine()->getManager();
         $survey->setStatus('closed');
         $em->persist($survey);
-        $em->flush();
-
-        return $this->redirectToRoute('survey_list', array('message' => 'Опрос закрыт', 'color' => 'green'), 301);
+        try {
+            $em->flush();
+        } catch(\Exception $e) {
+            throw new NotFoundHttpException('Попытка закрыть опрос завершилась неудачей');
+        }
+        return $this->redirectToRoute('survey_list', array('message' => 'Опрос закрыт',
+            'color' => 'green'), 301);
     }
 
 
@@ -191,11 +194,14 @@ class SurveyController extends AbstractController
      * @Route("view_result/{id}", name="view_result")
      */
     public function view_result(Request $request, Survey $survey) {
-
         if($request->isMethod('post')) {
-            $users_count = $request->request->get('users_count');
-            $ua_count_str = $request->request->get('useranswers_count');
-            $message = $request->request->get('message');
+            try {
+                $users_count = $request->request->get('users_count');
+                $ua_count_str = $request->request->get('useranswers_count');
+                $message = $request->request->get('message');
+            } catch(\Exception $e) {
+                throw new NotFoundHttpException('Не удалось получить данные');
+            }
             $color = 'green';
             $temp_array = explode(',', $ua_count_str);
             foreach($temp_array as $str) {
@@ -204,7 +210,8 @@ class SurveyController extends AbstractController
             }
         } else {
             $ua_count_rebuilt = [];
-            $useranswers_count = $this->getDoctrine()->getRepository(UserAnswer::class)->findAllAnswersWithGroupCountUA($survey->getId());
+            $useranswers_count = $this->getDoctrine()->getRepository(UserAnswer::class)
+                ->findAllAnswersWithGroupCountUA($survey->getId());
             foreach($useranswers_count as $ua_count) {
                 $ua_count_rebuilt[$ua_count['answers_id']] = $ua_count['val_count'];
             }
@@ -213,9 +220,6 @@ class SurveyController extends AbstractController
             $message = '';
             $color = '';
         }
-
-
-
         $data = [
             'users_count' => $users_count,
             'useranswers_count' => $ua_count_rebuilt,
@@ -231,16 +235,18 @@ class SurveyController extends AbstractController
      * @Route("filter/{id}", name="filter")
      */
     public function filter(Request $request, Survey $survey) {
-
         if($request->isXmlHttpRequest()) {
-            $questions_arr =  json_decode($request->getContent());
-            $message = 'Выборка по пользователям: ' . $questions_arr[0];
+            try {
+                $questions_arr = json_decode($request->getContent());
+                $message = 'Выборка по пользователям: ' . $questions_arr[0];
+            } catch(\Exception $e) {
+                throw new NotFoundHttpException('Не удалось получить данные');
+            }
             $full_filter = '';
             $ques_count = 0;
             foreach($questions_arr[1] as $question) {
                 $str_min = '';
                 $ans_count = 0;
-
                 foreach($question as $ans_id) {
                     if ($ans_count != 0) {
                         $str_min .= "OR";
@@ -254,7 +260,8 @@ class SurveyController extends AbstractController
                 $full_filter .= '('. $str_min .')';
                 $ques_count++;
             }
-            $useranswers_count = $this->getDoctrine()->getRepository(UserAnswer::class)->findAllUsersWithFilter($full_filter, $survey->getId());
+            $useranswers_count = $this->getDoctrine()->getRepository(UserAnswer::class)
+                ->findAllUsersWithFilter($full_filter, $survey->getId());
             $data = [
                 'users_count' => $useranswers_count[1],
                 'useranswers_count' => $useranswers_count[0],
@@ -264,9 +271,7 @@ class SurveyController extends AbstractController
             $data_json = json_encode($data);
             return new Response($data_json);
         }
-
         return $this->render('survey/filter.html.twig', array('survey' => $survey));
-
     }
 
 }

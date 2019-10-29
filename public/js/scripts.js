@@ -1,3 +1,4 @@
+//c помощью этого класса создаем новые поля вопросов и ответов и прототипы для них
 function Survey(params) {
     //сохраняем контекст в переменную и делаем ссылку добавления полей
     var they = this;
@@ -150,7 +151,7 @@ $('#result-poll .js-result-pull').each(function () {
     $(this).children('.result-pull-in').css('width', computedWidthRes +'px');
 });
 
-
+//отправка результатов фильтра
 $('#send-filter').on('click', function(e){
     e.preventDefault();
     var questions = {};

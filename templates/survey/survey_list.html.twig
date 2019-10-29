@@ -5,54 +5,56 @@
 {% block body %}
 
 
-
+<div>
+    <a href="{{ path('index') }}"><button id="to-index">На главную</button></a>
+</div>
 <div class="example-wrapper">
 
-<div>
-        <h3>Активный опрос</h3>
-        <table class="survey-list">
-                {% for survey in surveys if survey.status == "active" %}
+    <div>
+            <h3>Активный опрос</h3>
+            <table class="survey-list">
+                    {% for survey in surveys if survey.status == "active" %}
+                        <tr class="survey-in-list">
+                            <td>{{ survey.title }}</td>
+                            <td><a href="{{ path('view_result', {'id': survey.id}) }}" class="edit-survey-link">Посмотреть результаты</a></td>
+                            <td><a href="{{ path('filter', {'id': survey.id}) }}" class="edit-survey-link">Результаты в разрезе</a></td>
+                            <td><a href="{{ path('survey_close', {'id': survey.id}) }}" class="edit-survey-link">Закрыть опрос</a></td>
+                            <td><a href="{{ path('survey_del', {'id': survey.id}) }}" class="edit-survey-link">Удалить опрос</a></td>
+                        </tr>
+                    {% endfor %}
+
+            </table>
+    </div>
+    <div>
+            <h3>Черновики</h3>
+            <table class="survey-list">
+                {% for survey in surveys if survey.status == "draft" %}
+                    <tr class="survey-in-list">
+                        <td>{{ survey.title }}</td>
+                        <td><a href="{{ path('survey_edit', {'id': survey.id}) }}" class="edit-survey-link">Редактировать опрос</a></td>
+                        <td><a href="{{ path('survey_activate', {'id': survey.id}) }}" class="edit-survey-link">Активировать опрос</a></td>
+                        <td><a href="{{ path('survey_del', {'id': survey.id}) }}" class="edit-survey-link">Удалить опрос</a></td>
+                    </tr>
+                {% endfor %}
+            </table>
+    </div>
+    <div>
+            <h3>Закрытые опросы</h3>
+            <table class="survey-list">
+                {% for survey in surveys if survey.status == "closed" %}
                     <tr class="survey-in-list">
                         <td>{{ survey.title }}</td>
                         <td><a href="{{ path('view_result', {'id': survey.id}) }}" class="edit-survey-link">Посмотреть результаты</a></td>
                         <td><a href="{{ path('filter', {'id': survey.id}) }}" class="edit-survey-link">Результаты в разрезе</a></td>
-                        <td><a href="{{ path('survey_close', {'id': survey.id}) }}" class="edit-survey-link">Закрыть опрос</a></td>
+                        <td><a href="{{ path('survey_activate', {'id': survey.id}) }}" class="edit-survey-link">Активировать опрос</a></td>
                         <td><a href="{{ path('survey_del', {'id': survey.id}) }}" class="edit-survey-link">Удалить опрос</a></td>
                     </tr>
                 {% endfor %}
-
-        </table>
-</div>
-<div>
-        <h3>Черновики</h3>
-        <table class="survey-list">
-            {% for survey in surveys if survey.status == "draft" %}
-                <tr class="survey-in-list">
-                    <td>{{ survey.title }}</td>
-                    <td><a href="{{ path('survey_edit', {'id': survey.id}) }}" class="edit-survey-link">Редактировать опрос</a></td>
-                    <td><a href="{{ path('survey_activate', {'id': survey.id}) }}" class="edit-survey-link">Активировать опрос</a></td>
-                    <td><a href="{{ path('survey_del', {'id': survey.id}) }}" class="edit-survey-link">Удалить опрос</a></td>
-                </tr>
-            {% endfor %}
-        </table>
-</div>
-<div>
-        <h3>Закрытые опросы</h3>
-        <table class="survey-list">
-            {% for survey in surveys if survey.status == "closed" %}
-                <tr class="survey-in-list">
-                    <td>{{ survey.title }}</td>
-                    <td><a href="{{ path('view_result', {'id': survey.id}) }}" class="edit-survey-link">Посмотреть результаты</a></td>
-                    <td><a href="{{ path('filter', {'id': survey.id}) }}" class="edit-survey-link">Результаты в разрезе</a></td>
-                    <td><a href="{{ path('survey_activate', {'id': survey.id}) }}" class="edit-survey-link">Активировать опрос</a></td>
-                    <td><a href="{{ path('survey_del', {'id': survey.id}) }}" class="edit-survey-link">Удалить опрос</a></td>
-                </tr>
-            {% endfor %}
-        </table>
-</div>
-<div  id="survey_create">
-    <a href="{{ path('new') }}"><button>Создать новый опрос</button></a>
-</div>
+            </table>
+    </div>
+    <div  id="survey_create">
+        <a href="{{ path('new') }}"><button>Создать новый опрос</button></a>
+    </div>
 
 
 

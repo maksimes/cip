@@ -4,25 +4,26 @@
 
 {% block body %}
 
-
+<div>
+    <a href="{{ path('index') }}"><button id="to-index">На главную</button></a>
+</div>
 <div class="example-wrapper">
         <h2>Результаты опроса</h2>
-<div id="result-poll" data-users-count="{{ users_count }}">
-    {% for question in questions %}
-        <div>
-            <h4>{{ question.text }}</h4>
-            <div class="question-poll" data-question_id="{{ question.id }}" >
+    <div id="result-poll" data-users-count="{{ users_count }}">
+        {% for question in questions %}
+            <div>
+                <h4>{{ question.text }}</h4>
+                <div class="question-poll" data-question_id="{{ question.id }}" >
 
-                {% for answer in question.answers %}
-                        <span>{{ answer.text }}</span><br>
-                <div class="js-result-pull" data-id="{{ answer.id }}" data-count="{{ useranswers_count[answer.id] }}"><div class="result-pull-in"></div></div><div> {{ useranswers_count[answer.id] }} из {{ users_count }}</div>
-                {% endfor %}
+                    {% for answer in question.answers %}
+                            <span>{{ answer.text }}</span><br>
+                    <div class="js-result-pull" data-id="{{ answer.id }}" data-count="{{ useranswers_count[answer.id] }}"><div class="result-pull-in"></div></div><div> {{ useranswers_count[answer.id] }} из {{ users_count }}</div>
+                    {% endfor %}
+                </div>
             </div>
-        </div>
 
-    {% endfor %}
-</div>
-    <a href="{{ path('index') }}"><button id="to-index">На главную</button></a>
+        {% endfor %}
+    </div>
 </div>
 
 

@@ -4,7 +4,9 @@
 
 {% block body %}
 
-
+    <div>
+        <a href="{{ path('index') }}"><button id="to-index">На главную</button></a>
+    </div>
 <div class="example-wrapper">
         <h2>Пройдите опрос</h2>
         <h3>{{ survey.title }}</h3>
@@ -31,7 +33,6 @@
         <div id="errors"></div>
         <button id="send-survey">Отправить</button>
     </form>
-
 
 </div>
 
