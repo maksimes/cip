@@ -173,8 +173,36 @@ $('#send-filter').on('click', function(e){
         url: url,
         type: "post",
         data: json_answ_id,
+        dataType:'json',
         success: function(data) {
-            // location.href = 'view_filter/' + data;
+            var useranswers_count = Object.keys(data['useranswers_count']).map(function(key) {
+                return [Number(key), data['useranswers_count'][key]];
+            });
+
+            var jstr = JSON.stringify(data);
+            // var str = '';
+            // var keys = Object.keys(data['useranswers_count'])
+            // for (var i = 0, l = keys.length; i < l; i++) {
+            //     str += '['+ keys[i]+ ']'
+            // }
+            //
+            //
+            //
+            // for (i = 0; i < useranswers_count.length; i++) {
+            //     useranswers_count
+            // }
+
+
+            var strJSON = JSON.stringify(data['useranswers_count']);
+            console.log(typeof strJSON);
+
+            var new_form = $('<form style="display: hidden" method="post" action="/view_result/'+ data['survey_id'] +'"></form>');
+            var inp1 = $('<input type="hidden" name="users_count" value="'+ data['users_count'] +'"/>');
+            var inp2 = $('<input type="hidden" id="useranswers-count" name="useranswers_count" value="'+ strJSON +'"/>');
+            $('body').append(new_form);
+            // $('#useranswers-count').attr('value', useranswers_count);
+            // console.log($('#useranswers_count'));
+            new_form.append(inp1).append(inp2).submit();
         }
     });
 });

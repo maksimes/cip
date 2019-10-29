@@ -192,14 +192,27 @@ class SurveyController extends AbstractController
      */
     public function view_result(Request $request, Survey $survey) {
 
-        $ua_count_rebuilt = [];
-        $useranswers_count = $this->getDoctrine()->getRepository(UserAnswer::class)->findAllAnswersWithGroupCountUA($survey->getId());
-        foreach($useranswers_count as $ua_count) {
-            $ua_count_rebuilt[$ua_count['answers_id']] = $ua_count['val_count'];
+        if($request->isMethod('post')) {
+            $users_count = $request->request->get('users_count');
+            $ua_count_rebuilt = $request->request->get('useranswers_count');
+//            $js_data =  json_decode($request->getContent());
+//            $js_data1 = json_decode($ua_count_rebuilt);
+            $jsn = json_encode($ua_count_rebuilt);
+            $ison = json_decode($jsn);
+            dump($ison);
+            dd($ua_count_rebuilt);
+//            dump($js_data);
+//            dump($js_data1);
+//            dd(1);
+        } else {
+            $ua_count_rebuilt = [];
+            $useranswers_count = $this->getDoctrine()->getRepository(UserAnswer::class)->findAllAnswersWithGroupCountUA($survey->getId());
+            foreach($useranswers_count as $ua_count) {
+                $ua_count_rebuilt[$ua_count['answers_id']] = $ua_count['val_count'];
+            }
+            $users_count = count($this->getDoctrine()->getRepository(User::class)
+                ->findBy(['survey' => $survey->getId()]));
         }
-
-        $users_count = count($this->getDoctrine()->getRepository(User::class)
-            ->findBy(['survey' => $survey->getId()]));
 
         $data = [
             'users_count' => $users_count,
@@ -216,10 +229,7 @@ class SurveyController extends AbstractController
     public function filter(Request $request, Survey $survey) {
 
         if($request->isXmlHttpRequest()) {
-
-            $simple_str = 'SELECT user_id, GROUP_CONCAT(answer_id) as conc_answers FROM user_answer GROUP BY user_id HAVING (conc_answers LIKE \'%135%\') AND (conc_answers LIKE \'%136%\' OR conc_answers LIKE \'%138%\')';
             $questions_arr =  json_decode($request->getContent());
-//            dd($questions_arr);
             $full_filter = '';
             $ques_count = 0;
             foreach($questions_arr as $question) {
@@ -235,27 +245,21 @@ class SurveyController extends AbstractController
                 if($ques_count != 0) {
                     $full_filter .= ' AND ';
                 }
-                $full_filter .= '(' . $str_min . ')';
+                $full_filter .= '('. $str_min .')';
                 $ques_count++;
             }
-            dd($full_filter);
 
-            $ua_count_rebuilt = [];
-            $useranswers_count = $this->getDoctrine()->getRepository(UserAnswer::class)->findAllAnswersWithGroupCountUA($survey->getId());
-            foreach ($useranswers_count as $ua_count) {
-                $ua_count_rebuilt[$ua_count['answers_id']] = $ua_count['val_count'];
-            }
+            $useranswers_count = $this->getDoctrine()->getRepository(UserAnswer::class)->findAllUsersWithFilter($full_filter, $survey->getId());
 
-            $users_count = count($this->getDoctrine()->getRepository(User::class)
-                ->findBy(['survey' => $survey->getId()]));
 
             $data = [
-                'users_count' => $users_count,
-                'useranswers_count' => $ua_count_rebuilt,
-                'questions' => $survey->getQuestions(),
+                'users_count' => $useranswers_count[1],
+                'useranswers_count' => $useranswers_count[0],
+                'survey_id' => $survey->getId(),
             ];
-//            return $this->render('survey/poll_result.html.twig', $data);
-            return new Response($survey->getId());
+            $data_json = json_encode($data);
+//            return $this->redirectToRoute('view_result', array('id' => $survey->getId()));
+            return new Response($data_json);
         }
 
         return $this->render('survey/filter.html.twig', array('survey' => $survey));
