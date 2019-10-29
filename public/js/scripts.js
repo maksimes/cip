@@ -153,7 +153,6 @@ $('#result-poll .js-result-pull').each(function () {
 
 $('#send-filter').on('click', function(e){
     e.preventDefault();
-
     var questions = {};
     var question = [];
     var mess = '';
@@ -194,7 +193,7 @@ $('#send-filter').on('click', function(e){
                 str += keys[i]+  ':' + data['useranswers_count'][keys[i]] + ',';
             }
             str = str.substring(0, str.length - 1);
-            var new_form = $('<form style="display: hidden" method="post" action="/view_result/'+ data['survey_id'] +'"></form>');
+            var new_form = $('<form style="display: none" method="post" action="/view_result/'+ data['survey_id'] +'"></form>');
             var inp1 = $('<input type="hidden" name="users_count" value="'+ data['users_count'] +'"/>');
             var inp2 = $('<input type="hidden" name="useranswers_count" value="'+ str +'"/>');
             var inp3 = $('<input type="hidden" name="message" value="'+ data['message'] +'"/>');
