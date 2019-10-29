@@ -65,7 +65,6 @@ input#survey_title {
     color: red;
 }
 .edit-survey-link {
-    margin-left: 40px;
     text-decoration: none;
 }
 
@@ -82,7 +81,6 @@ input#survey_title {
 }
 
 table.survey-list {
-    font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
     text-align: center;
     border-collapse: collapse;
     border-spacing: 5px;
@@ -137,5 +135,5 @@ tr.survey-in-list:first-child {
 .result-pull-in {
     height: 20px;
     background: royalblue;
-    width: 0px;
+    width: 0;
 }

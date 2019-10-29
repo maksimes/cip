@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\UserAnswer;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * @method UserAnswer|null find($id, $lockMode = null, $lockVersion = null)
@@ -19,26 +20,11 @@ class UserAnswerRepository extends ServiceEntityRepository
         parent::__construct($registry, UserAnswer::class);
     }
 
-     /**
-      * @return UserAnswer[] Returns an array of UserAnswer objects
-      */
-
-    public function findAllByAnswer($answer)
-    {
-        return $this->createQueryBuilder('u')
-            ->andWhere('u.answer = :val')
-            ->setParameter('val', $answer)
-            ->orderBy('u.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-
 
     public function findAllAnswersWithGroupCountUA($survey_id)
     {
         $conn = $this->getEntityManager()->getConnection();
+
         $sql = 'SELECT a.id as answers_id, COUNT(ua.id) as val_count 
                 FROM answer a 
                 LEFT JOIN user_answer ua ON a.id=ua.answer_id 
@@ -47,7 +33,11 @@ class UserAnswerRepository extends ServiceEntityRepository
                 WHERE s.id= :survey_id GROUP BY a.id';
 
         $stmt = $conn->prepare($sql);
-        $stmt->execute(['survey_id' => $survey_id]);
+        try {
+            $stmt->execute(['survey_id' => $survey_id]);
+        } catch(\Exception $e) {
+            throw new NotFoundHttpException('Данные не найдены');
+        }
         return $stmt->fetchAll();
     }
 
@@ -82,16 +72,4 @@ class UserAnswerRepository extends ServiceEntityRepository
         return array($answers_count, $count_users);
     }
 
-
-    /*
-    public function findOneBySomeField($value): ?UserAnswer
-    {
-        return $this->createQueryBuilder('u')
-            ->andWhere('u.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
-    }
-    */
 }

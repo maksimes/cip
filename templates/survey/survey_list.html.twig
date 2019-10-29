@@ -15,6 +15,7 @@
                     <tr class="survey-in-list">
                         <td>{{ survey.title }}</td>
                         <td><a href="{{ path('view_result', {'id': survey.id}) }}" class="edit-survey-link">Посмотреть результаты</a></td>
+                        <td><a href="{{ path('filter', {'id': survey.id}) }}" class="edit-survey-link">Результаты в разрезе</a></td>
                         <td><a href="{{ path('survey_close', {'id': survey.id}) }}" class="edit-survey-link">Закрыть опрос</a></td>
                         <td><a href="{{ path('survey_del', {'id': survey.id}) }}" class="edit-survey-link">Удалить опрос</a></td>
                     </tr>
@@ -42,6 +43,7 @@
                 <tr class="survey-in-list">
                     <td>{{ survey.title }}</td>
                     <td><a href="{{ path('view_result', {'id': survey.id}) }}" class="edit-survey-link">Посмотреть результаты</a></td>
+                    <td><a href="{{ path('filter', {'id': survey.id}) }}" class="edit-survey-link">Результаты в разрезе</a></td>
                     <td><a href="{{ path('survey_activate', {'id': survey.id}) }}" class="edit-survey-link">Активировать опрос</a></td>
                     <td><a href="{{ path('survey_del', {'id': survey.id}) }}" class="edit-survey-link">Удалить опрос</a></td>
                 </tr>

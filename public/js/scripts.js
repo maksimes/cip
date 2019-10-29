@@ -156,18 +156,31 @@ $('#send-filter').on('click', function(e){
 
     var questions = {};
     var question = [];
-
+    var mess = '';
+    var tempMess = '';
     $('#filter-form .question-poll').each(function () {
         $(this).find('input:checked').each(function () {
             question.push($(this).attr('value'));
+            if (tempMess != '') {
+                tempMess += ' ИЛИ ';
+            }
+            tempMess += '<<' + $(this).parent('label').text() + '>>';
         })
         if ($(this).find('input:checked').length > 0) {
+            mess += $(this).find('.question-text-filter').text();
+            if(mess.slice(-1) == '?') {
+                mess = mess.slice(0, -1);
+            }
+            mess += ': ';
+            mess += tempMess;
+            mess += '. ';
+            tempMess = '';
             questions[$(this).data('question_id')] = question;
         }
         question = [];
     })
-    console.log(questions);
-    var json_answ_id = JSON.stringify(questions);
+    var data = [mess, questions];
+    var json_answ_id = JSON.stringify(data);
     var url = $('#filter-form').attr('action');
     $.ajax({
         url: url,
@@ -175,34 +188,18 @@ $('#send-filter').on('click', function(e){
         data: json_answ_id,
         dataType:'json',
         success: function(data) {
-            var useranswers_count = Object.keys(data['useranswers_count']).map(function(key) {
-                return [Number(key), data['useranswers_count'][key]];
-            });
-
-            var jstr = JSON.stringify(data);
-            // var str = '';
-            // var keys = Object.keys(data['useranswers_count'])
-            // for (var i = 0, l = keys.length; i < l; i++) {
-            //     str += '['+ keys[i]+ ']'
-            // }
-            //
-            //
-            //
-            // for (i = 0; i < useranswers_count.length; i++) {
-            //     useranswers_count
-            // }
-
-
-            var strJSON = JSON.stringify(data['useranswers_count']);
-            console.log(typeof strJSON);
-
+            var str = '';
+            var keys = Object.keys(data['useranswers_count'])
+            for (var i = 0, l = keys.length; i < l; i++) {
+                str += keys[i]+  ':' + data['useranswers_count'][keys[i]] + ',';
+            }
+            str = str.substring(0, str.length - 1);
             var new_form = $('<form style="display: hidden" method="post" action="/view_result/'+ data['survey_id'] +'"></form>');
             var inp1 = $('<input type="hidden" name="users_count" value="'+ data['users_count'] +'"/>');
-            var inp2 = $('<input type="hidden" id="useranswers-count" name="useranswers_count" value="'+ strJSON +'"/>');
+            var inp2 = $('<input type="hidden" name="useranswers_count" value="'+ str +'"/>');
+            var inp3 = $('<input type="hidden" name="message" value="'+ data['message'] +'"/>');
             $('body').append(new_form);
-            // $('#useranswers-count').attr('value', useranswers_count);
-            // console.log($('#useranswers_count'));
-            new_form.append(inp1).append(inp2).submit();
+            new_form.append(inp1).append(inp2).append(inp3).submit();
         }
     });
 });

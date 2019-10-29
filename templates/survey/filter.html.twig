@@ -9,8 +9,8 @@
         <form action="{{ path('filter', {'id': survey.id}) }}" method="post" id="filter-form">
                 {% for question in survey.questions %}
                     <div>
-                        <h4>{{ question.text }}</h4>
                         <div class="question-poll" data-question_id="{{ question.id }}">
+                            <h4 class="question-text-filter">{{ question.text }}</h4>
                                 {% for answer in question.answers %}
                                         <label for="{{ answer.id }}"  ><input type="checkbox" name="{{ question.id }}"
                                         value="{{ answer.id }}" id="{{ answer.id }}">{{ answer.text }}</label><br>

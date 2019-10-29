@@ -194,16 +194,14 @@ class SurveyController extends AbstractController
 
         if($request->isMethod('post')) {
             $users_count = $request->request->get('users_count');
-            $ua_count_rebuilt = $request->request->get('useranswers_count');
-//            $js_data =  json_decode($request->getContent());
-//            $js_data1 = json_decode($ua_count_rebuilt);
-            $jsn = json_encode($ua_count_rebuilt);
-            $ison = json_decode($jsn);
-            dump($ison);
-            dd($ua_count_rebuilt);
-//            dump($js_data);
-//            dump($js_data1);
-//            dd(1);
+            $ua_count_str = $request->request->get('useranswers_count');
+            $message = $request->request->get('message');
+            $color = 'green';
+            $temp_array = explode(',', $ua_count_str);
+            foreach($temp_array as $str) {
+                $arr = explode(':', $str);
+                $ua_count_rebuilt[$arr[0]] = $arr[1];
+            }
         } else {
             $ua_count_rebuilt = [];
             $useranswers_count = $this->getDoctrine()->getRepository(UserAnswer::class)->findAllAnswersWithGroupCountUA($survey->getId());
@@ -212,12 +210,18 @@ class SurveyController extends AbstractController
             }
             $users_count = count($this->getDoctrine()->getRepository(User::class)
                 ->findBy(['survey' => $survey->getId()]));
+            $message = '';
+            $color = '';
         }
+
+
 
         $data = [
             'users_count' => $users_count,
             'useranswers_count' => $ua_count_rebuilt,
             'questions' => $survey->getQuestions(),
+            'message' => $message,
+            'color'=> $color,
         ];
         return $this->render('survey/poll_result.html.twig',$data );
     }
@@ -230,11 +234,13 @@ class SurveyController extends AbstractController
 
         if($request->isXmlHttpRequest()) {
             $questions_arr =  json_decode($request->getContent());
+            $message = 'Выборка по пользователям: ' . $questions_arr[0];
             $full_filter = '';
             $ques_count = 0;
-            foreach($questions_arr as $question) {
+            foreach($questions_arr[1] as $question) {
                 $str_min = '';
                 $ans_count = 0;
+
                 foreach($question as $ans_id) {
                     if ($ans_count != 0) {
                         $str_min .= "OR";
@@ -248,17 +254,14 @@ class SurveyController extends AbstractController
                 $full_filter .= '('. $str_min .')';
                 $ques_count++;
             }
-
             $useranswers_count = $this->getDoctrine()->getRepository(UserAnswer::class)->findAllUsersWithFilter($full_filter, $survey->getId());
-
-
             $data = [
                 'users_count' => $useranswers_count[1],
                 'useranswers_count' => $useranswers_count[0],
                 'survey_id' => $survey->getId(),
+                'message' => $message,
             ];
             $data_json = json_encode($data);
-//            return $this->redirectToRoute('view_result', array('id' => $survey->getId()));
             return new Response($data_json);
         }
 
